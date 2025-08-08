@@ -157,8 +157,14 @@ authRouter.post(
       console.log('Verificando audience:', {
         tokenAud: decodedPayload.aud,
         envClientId: process.env.GOOGLE_CLIENT_ID,
+        envClientIdExists: !!process.env.GOOGLE_CLIENT_ID,
         match: decodedPayload.aud === process.env.GOOGLE_CLIENT_ID
       });
+      
+      if (!process.env.GOOGLE_CLIENT_ID) {
+        console.error('ERRO CRÍTICO: GOOGLE_CLIENT_ID não configurado na Vercel!');
+        return ApiResponseHelper.internalError(c, 'Server configuration error - missing GOOGLE_CLIENT_ID');
+      }
       
       if (decodedPayload.aud !== process.env.GOOGLE_CLIENT_ID) {
         console.error('Audience incorreta:', {
