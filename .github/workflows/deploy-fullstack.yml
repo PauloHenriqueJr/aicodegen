@@ -1,0 +1,130 @@
+name: 🚀 Deploy Full Stack (Frontend + Backend)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "fullstack-deploy"
+  cancel-in-progress: false
+
+jobs:
+  # Deploy Backend primeiro
+  deploy-backend:
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+    - name: 📥 Checkout
+      uses: actions/checkout@v4
+
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: 📦 Install dependencies
+      run: |
+        cd apps/server
+        npm ci
+
+    - name: 🔧 Build Backend
+      run: |
+        cd apps/server
+        npm run build
+
+    - name: 🚀 Deploy Backend to Vercel
+      uses: amondnet/vercel-action@v25
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        working-directory: ./apps/server
+        vercel-args: '--prod'
+
+  # Deploy Frontend depois (depende do backend)
+  deploy-frontend:
+    needs: deploy-backend
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    env:
+      VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
+    
+    steps:
+    - name: 📥 Checkout
+      uses: actions/checkout@v4
+
+    - name: Debug VITE_GOOGLE_CLIENT_ID
+      run: |
+        echo "VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID"
+        echo "Length: ${#VITE_GOOGLE_CLIENT_ID}"
+        if [ -z "$VITE_GOOGLE_CLIENT_ID" ]; then
+          echo "❌ VITE_GOOGLE_CLIENT_ID está vazio ou não definido"
+        else
+          echo "✅ VITE_GOOGLE_CLIENT_ID está definido"
+        fi
+
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: 'apps/web/package-lock.json'
+    
+    - name: 📦 Install dependencies
+      run: |
+        cd apps/web
+        npm ci
+    
+    - name: 🔧 Build Frontend
+      run: |
+        echo "🔍 Verificando variáveis de ambiente no build:"
+        echo "VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID"
+        echo "NODE_ENV=$NODE_ENV"
+        
+        # Criar arquivo .env.production com as variáveis necessárias
+        cd apps/web
+        echo "VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID" > .env.production
+        echo "VITE_API_URL=https://aicodegen-backend.vercel.app" >> .env.production
+        echo "📝 Conteúdo do .env.production:"
+        cat .env.production
+        
+        npm run build
+        # Copiar 404.html para o diretório de build (fix para SPAs)
+        cp public/404.html dist/
+        echo "🔍 Verificando se o Client ID foi injetado no bundle:"
+        if grep -r "your-google-client-id" dist/; then
+          echo "❌ Client ID padrão encontrado no bundle - variável não foi injetada"
+        else
+          echo "✅ Client ID padrão não encontrado - variável provavelmente foi injetada"
+        fi
+        
+        # Verificar se o Client ID real está no bundle
+        if grep -r "207876045519-7trlg013advn4qqks8vlsp2nqbghap8d" dist/; then
+          echo "✅ Client ID real encontrado no bundle"
+        else
+          echo "❌ Client ID real NÃO encontrado no bundle"
+        fi
+      env:
+        NODE_ENV: production
+    
+    - name: 📄 Setup Pages
+      uses: actions/configure-pages@v4
+    
+    - name: 📤 Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: ./apps/web/dist
+    
+    - name: 🚀 Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4

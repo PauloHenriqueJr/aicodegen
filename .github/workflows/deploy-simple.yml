@@ -1,0 +1,77 @@
+name: 🚀 Deploy Full Stack (Render + GitHub Pages)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "fullstack-deploy"
+  cancel-in-progress: false
+
+jobs:
+  # Deploy Backend para Render
+  deploy-backend:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout
+      uses: actions/checkout@v4
+
+    - name: 🚀 Trigger Render Deploy
+      run: |
+        curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
+      if: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+
+  # Deploy Frontend para GitHub Pages
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    env:
+      VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
+    
+    steps:
+    - name: 📥 Checkout
+      uses: actions/checkout@v4
+
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: 'apps/web/package-lock.json'
+    
+    - name: 📦 Install dependencies
+      run: |
+        cd apps/web
+        npm ci
+    
+    - name: 🔧 Build Frontend
+      run: |
+        cd apps/web
+        echo "VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID" > .env.production
+        echo "VITE_API_URL=https://aicodegen-backend.onrender.com" >> .env.production
+        
+        npm run build
+        cp public/404.html dist/
+      env:
+        NODE_ENV: production
+    
+    - name: 📄 Setup Pages
+      uses: actions/configure-pages@v4
+    
+    - name: 📤 Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: ./apps/web/dist
+    
+    - name: 🚀 Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4

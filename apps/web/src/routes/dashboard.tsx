@@ -1,5 +1,7 @@
 import { createFileRoute, useSearch, useRouter } from "@tanstack/react-router";
 import { useState, useEffect, useRef } from "react";
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
 import { Button } from "../components/ui/button";
 import { 
   Sparkles, 
@@ -316,10 +318,6 @@ ${data.data.steps.map((step: any, i: number) =>
   const handleExport = async () => {
     const projectDisplayName = projectName || "Novo Projeto";
     const sanitizedName = projectDisplayName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-    
-    // Import JSZip dynamically
-    const JSZip = (await import('jszip')).default;
-    const { saveAs } = await import('file-saver');
     
     const zip = new JSZip();
     

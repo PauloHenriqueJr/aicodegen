@@ -22,12 +22,15 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: false,
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
           router: ['@tanstack/react-router'],
           ui: ['framer-motion', 'lucide-react'],
+          utils: ['jszip', 'file-saver'],
+          editor: ['@monaco-editor/react']
         }
       }
     }

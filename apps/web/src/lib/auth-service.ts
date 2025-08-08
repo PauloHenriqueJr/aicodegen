@@ -3,6 +3,21 @@ import { GoogleAuthService } from './google-auth';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
+// Função para decodificar JWT (simplificada para demo)
+function parseJWT(token: string) {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error('Erro ao decodificar JWT:', error);
+    return null;
+  }
+}
+
 export interface AuthResponse {
   user: User;
   session: {
