@@ -77,6 +77,14 @@ app.get("/health", (c) => {
     status: "healthy",
     uptime: process.uptime(),
     timestamp: new Date().toISOString(),
+    debug: {
+      nodeEnv: process.env.NODE_ENV,
+      hasGoogleClientId: !!process.env.GOOGLE_CLIENT_ID,
+      googleClientIdLength: process.env.GOOGLE_CLIENT_ID?.length || 0,
+      googleClientIdPrefix: process.env.GOOGLE_CLIENT_ID?.substring(0, 15) + '...',
+      hasDatabaseUrl: !!process.env.DATABASE_URL,
+      corsOrigin: process.env.CORS_ORIGIN,
+    }
   });
 });
 
