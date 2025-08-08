@@ -1,4 +1,4 @@
 // Vercel entry point
-const { default: app } = require('../dist/index.js');
+const { default: app } = require('../index.js');
 
 module.exports = app;
