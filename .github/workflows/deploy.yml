@@ -1,0 +1,58 @@
+name: 🚀 Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    steps:
+    - name: 📥 Checkout
+      uses: actions/checkout@v4
+      
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: 'apps/web/package-lock.json'
+    
+    - name: 📦 Install dependencies
+      run: |
+        cd apps/web
+        npm ci
+    
+    - name: 🔧 Build
+      run: |
+        cd apps/web
+        npm run build
+        # Copiar 404.html para o diretório de build (fix para SPAs)
+        cp public/404.html dist/
+      env:
+        NODE_ENV: production
+    
+    - name: 📄 Setup Pages
+      uses: actions/configure-pages@v4
+    
+    - name: 📤 Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: ./apps/web/dist
+    
+    - name: 🚀 Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
