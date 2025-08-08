@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "./ui/button";
-import { useAIGeneration, type ScreenFrame } from "../hooks/useAIGeneration";
+import { useRealAIGeneration, type ScreenFrame } from "../hooks/useRealAIGeneration";
 import { authenticatedFetch } from "../lib/auth-utils";
 import { API_BASE_URL } from "../lib/api";
 import { 
@@ -61,15 +61,16 @@ export function CanvasPane({ isGenerating = false, deviceView = 'all', projectPr
     }
   };
   
-  // Use AI Generation hook (fallback/mock system)
+  // Use Real AI Generation hook
   const {
     isGenerating: aiIsGenerating,
     currentStep,
     generatedScreens,
     startGeneration,
-    resetGeneration
-  } = useAIGeneration({
-    projectPrompt,
+    resetGeneration,
+    error: generationError
+  } = useRealAIGeneration({
+    projectId,
     onScreenGenerated: (screen) => {
       console.log('New screen generated:', screen.name);
     },
