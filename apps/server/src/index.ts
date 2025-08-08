@@ -97,13 +97,19 @@ app.onError((err, c) => {
 
 const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 
-serve({
-  fetch: app.fetch,
-  port,
-}, (info) => {
-  console.log(`🚀 AICodeGen API Server is running on http://localhost:${info.port}`);
-  console.log(`📚 Health check: http://localhost:${info.port}/health`);
-  console.log(`🔑 Auth endpoints: http://localhost:${info.port}/api/auth/*`);
-  console.log(`📁 Projects endpoints: http://localhost:${info.port}/api/projects/*`);
-  console.log(`⚡ Generation endpoints: http://localhost:${info.port}/api/generation/*`);
-});
+// Para Vercel (serverless)
+export default app;
+
+// Para desenvolvimento local (Node.js server)
+if (process.env.NODE_ENV !== 'production') {
+  serve({
+    fetch: app.fetch,
+    port,
+  }, (info) => {
+    console.log(`🚀 AICodeGen API Server is running on http://localhost:${info.port}`);
+    console.log(`📚 Health check: http://localhost:${info.port}/health`);
+    console.log(`🔑 Auth endpoints: http://localhost:${info.port}/api/auth/*`);
+    console.log(`📁 Projects endpoints: http://localhost:${info.port}/api/projects/*`);
+    console.log(`⚡ Generation endpoints: http://localhost:${info.port}/api/generation/*`);
+  });
+}
