@@ -41,7 +41,7 @@ class ApiClient {
     };
 
     if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
+      (headers as any)['Authorization'] = `Bearer ${this.token}`;
     }
 
     const response = await fetch(url, {
@@ -74,7 +74,7 @@ class ApiClient {
           credits: number;
         };
       };
-    }>('/auth/login', {
+    }>(`/auth/login`, {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
@@ -92,7 +92,7 @@ class ApiClient {
           credits: number;
         };
       };
-    }>('/auth/register', {
+    }>(`/auth/register`, {
       method: 'POST',
       body: JSON.stringify({ name, email, password }),
     });
@@ -107,7 +107,7 @@ class ApiClient {
         name: string;
         credits: number;
       };
-    }>('/auth/profile');
+    }>(`/auth/profile`);
   }
 
   // Projects endpoints
@@ -120,8 +120,10 @@ class ApiClient {
         prompt: string;
         status: string;
         createdAt: string;
+        updatedAt?: string;
+        preview?: string;
       }>;
-    }>('/projects');
+    }>(`/projects`);
   }
 
   async createProject(name: string, prompt: string) {
@@ -134,7 +136,7 @@ class ApiClient {
         status: string;
         createdAt: string;
       };
-    }>('/projects', {
+    }>(`/projects`, {
       method: 'POST',
       body: JSON.stringify({ name, prompt }),
     });
@@ -161,6 +163,7 @@ class ApiClient {
           component: string;
           route: string;
         }>;
+        generations?: Array<{ id: string; createdAt: string }>;
       };
     }>(`/projects/${id}`);
   }
@@ -183,7 +186,7 @@ class ApiClient {
           progress: number;
         }>;
       };
-    }>('/generation/start', {
+    }>(`/generation/start`, {
       method: 'POST',
       body: JSON.stringify({ projectId, prompt }),
     });

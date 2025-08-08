@@ -34,6 +34,7 @@ import { useTheme } from "../components/theme-provider";
 import { SettingsDialog } from "../components/settings-dialog";
 import { useRealAIGeneration } from "../hooks/useRealAIGeneration";
 import { useApp, mockAuth } from "../lib/app-context";
+import { api } from "../lib/api";
 
 interface DashboardSearch {
   project?: string;
@@ -65,6 +66,8 @@ function DashboardComponent() {
   const [currentProject, setCurrentProject] = useState<any>(null);
   const stepMessagesRef = useRef<Set<string>>(new Set());
   const [refreshSignal, setRefreshSignal] = useState(0);
+  const [backendProjectId, setBackendProjectId] = useState<string | null>(null);
+  const [backendGenerationId, setBackendGenerationId] = useState<string | null>(null);
   
   // Preview controls
   const [previewDevice, setPreviewDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
@@ -78,9 +81,10 @@ function DashboardComponent() {
     generationProgress,
     startGeneration,
     stopGeneration,
-    resetGeneration
+    resetGeneration,
+    generationId,
   } = useRealAIGeneration({
-    projectId: search.project || "temp-project-id", // TODO: Get real project ID
+    projectId: backendProjectId || search.project || "temp-project-id", // TODO: Get real project ID
     onScreenGenerated: (screen) => {
       console.log('Screen generated:', screen.name);
       // Adicionar mensagem no chat quando uma tela for gerada
@@ -130,69 +134,37 @@ function DashboardComponent() {
     }
   }, [search.project, messages.length, hasInitialized]);
 
-  const startRealGeneration = async (prompt: string) => {
+  const startBackendGeneration = async (prompt: string) => {
     try {
-      const response = await fetch('http://localhost:3000/api/generation/start', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer 76e12c09f37287ce35970ccdfc37a303d6425a0d28ff0c3dba219123a790b591580118d95626608f82de385bab02cc81dcdaff5a98fd8d01080b7c25bd29129f'
-        },
-        body: JSON.stringify({
-          projectId: 'cme23d2zj0004s1jcf3tyl2sr',
-          prompt: prompt
-        })
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        
-        const aiMessage: ChatMessage = {
-          id: (Date.now() + 1).toString(),
-          role: "assistant",
-          content: `🚀 **Perfeito! Iniciando geração com IA real!**
-
-**Projeto:** ${prompt}
-
-**Sistema ativado:**
-- ✅ Google AI (Gemini) conectado
-- ✅ Banco Neon sincronizado
-- ✅ ${data.data.totalSteps} etapas planejadas
-
-**Progresso em tempo real:**
-${data.data.steps.map((step: any, i: number) =>
-  `${i + 1}. ${step.name} - ${step.description}`
-).join('\n')}
-
-**As telas aparecerão no Canvas conforme forem geradas!**`,
-          timestamp: new Date(),
-        };
-        
-        setMessages(prev => [...prev, aiMessage]);
-        // Mantém isGenerating = true; o RealProgressTracker controlará a finalização via onStatusChange
-      } else {
-        throw new Error('Generation failed to start');
+      // Ensure a backend project exists
+      let projId = backendProjectId;
+      if (!projId) {
+        const created = await api.createProject(prompt, prompt);
+        projId = (created as any).data.id;
+        setBackendProjectId(projId);
       }
-    } catch (error) {
-      console.error('Failed to start generation:', error);
-      
+
+      // Start generation via backend
+      const started = await api.startGeneration(projId!, prompt);
+      const genId = (started as any).data.generationId as string;
+      setBackendGenerationId(genId);
+
       const aiMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: `Perfeito! Estou criando uma aplicação "${prompt}" para você. Vou gerar componentes React modernos com TypeScript, estilização com Tailwind CSS e também criar os designs no Figma.
-          
-**O que estou criando:**
-- ✅ Estrutura do projeto React + TypeScript
-- ✅ Componentes principais da aplicação
-- 🔄 Sistema de roteamento e navegação
-- 🔄 Estilização responsiva com Tailwind
-- ⏳ Frames do Figma para cada tela
-- ⏳ Configuração e testes`,
+        content: `🚀 **Perfeito! Iniciando geração com IA real!**\n\n**Projeto:** ${prompt}\n\n**Sistema ativado:**\n- ✅ Modelos conectados\n- ✅ Banco Neon sincronizado\n- ✅ Etapas planejadas\n\n**Acompanhe o progresso no painel lateral.**`,
         timestamp: new Date(),
       };
-      
       setMessages(prev => [...prev, aiMessage]);
-      // Em caso de erro na inicialização real, podemos liberar o flag de geração
+    } catch (error) {
+      console.error('Failed to start backend generation:', error);
+      const aiMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: `Não consegui iniciar a geração real agora. Vou continuar com a simulação local para o Canvas.`,
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, aiMessage]);
       setIsGenerating(false);
     }
   };
@@ -224,60 +196,20 @@ ${data.data.steps.map((step: any, i: number) =>
       
       setMessages(prev => [...prev, welcomeMessage]);
       
-      // Disparar geração real no backend (para progresso no sidebar)
-      void startRealGeneration(message);
+      // Iniciar geração real no backend (progresso no sidebar)
+      void startBackendGeneration(message);
       
       // Iniciar geração com AI Hook (mock para Canvas local)
       setTimeout(() => {
         startGeneration(message);
-      }, 1000);
+      }, 800);
       
       return;
     }
 
     setIsGenerating(true);
 
-    try {
-      // Call real API first
-      const response = await fetch('http://localhost:3000/api/projects/cme23d2zj0004s1jcf3tyl2sr/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer 76e12c09f37287ce35970ccdfc37a303d6425a0d28ff0c3dba219123a790b591580118d95626608f82de385bab02cc81dcdaff5a98fd8d01080b7c25bd29129f'
-        },
-        body: JSON.stringify({ content: message })
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const [userMsg, assistantMsg] = data.data;
-        
-        const aiMessage: ChatMessage = {
-          id: assistantMsg.id,
-          role: "assistant",
-          content: assistantMsg.content,
-          timestamp: new Date(assistantMsg.createdAt),
-        };
-        
-        setMessages(prev => [...prev, aiMessage]);
-      } else {
-        throw new Error('API call failed');
-      }
-    } catch (error) {
-      console.error('Failed to send message:', error);
-      
-      // Fallback response com AI Generation
-      const aiMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: `✨ **Entendido!** Implementando: "${message}"\n\n**Atualizações:**\n- 🔄 Modificando componentes relevantes\n- 🎨 Ajustando estilos e layouts\n- 📱 Sincronizando todas as telas\n\n*As mudanças aparecerão nos próximos momentos!*`,
-        timestamp: new Date(),
-      };
-      
-      setMessages(prev => [...prev, aiMessage]);
-    } finally {
-      setIsGenerating(false);
-    }
+    // Futuros envios podem ser tratados conforme necessário
   };
 
   const handleExport = async () => {
@@ -792,36 +724,16 @@ export const useTheme = () => {
     mockAuth.logout();
     setUser(null);
     setProjects([]);
-    // Navigate to home page
-    router.navigate({ to: '/' });
+    router.navigate({ to: "/login" });
   };
 
-  const handleProjectSelect = async (project: any) => {
+  const handleProjectSelect = (project: any) => {
     setCurrentProject(project);
     setProjectName(project.name);
-    
-    // Limpar mensagens atuais e carregar as do projeto
-    const projectMessages = [
-      {
-        id: '1',
-        role: 'system' as const,
-        content: 'Sistema iniciado. Como posso ajudar você hoje?',
-        timestamp: new Date(),
-      },
-      {
-        id: project.id + '_welcome',
-        role: 'assistant' as const,
-        content: `**Projeto carregado: ${project.name}**\n\n${project.description}\n\n**Status:** ${project.status === 'completed' ? 'Concluído' : project.status === 'generating' ? 'Em geração...' : 'Com erro'}\n\n**O que você gostaria de fazer com este projeto?**`,
-        timestamp: new Date(),
-      }
-    ];
-    
-    setMessages(projectMessages);
-    
+    setActiveTab('preview');
     // Se o projeto estiver sendo gerado, iniciar o tracking
     if (project.status === 'generating') {
       setIsGenerating(true);
-      // Simular o progresso da geração
       setTimeout(() => {
         setIsGenerating(false);
         const updatedMessage: ChatMessage = {
@@ -871,6 +783,8 @@ export const useTheme = () => {
             onLogout={handleLogout}
             onProjectSelect={handleProjectSelect}
             onGenerationStatusChange={handleSidebarGenerationStatusChange}
+            projectId={backendProjectId || undefined}
+            generationId={backendGenerationId || generationId || undefined}
           />
         )}
       </AnimatePresence>

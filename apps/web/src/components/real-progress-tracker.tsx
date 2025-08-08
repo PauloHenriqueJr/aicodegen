@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Check, Clock, AlertCircle, Loader2, Code, Monitor, Settings, Zap } from "lucide-react";
+import { api } from "../lib/api";
 
 interface RealProgressTrackerProps {
-  projectId: string;
+  projectId?: string;
+  generationId?: string;
   isActive?: boolean;
   onStatusChange?: (status: GenerationStatus['status'], progress: number) => void;
 }
@@ -27,56 +29,43 @@ interface GenerationStatus {
   steps: GenerationStep[];
 }
 
-export function RealProgressTracker({ projectId, isActive = false, onStatusChange }: RealProgressTrackerProps) {
+export function RealProgressTracker({ projectId, generationId, isActive = false, onStatusChange }: RealProgressTrackerProps) {
   const [generationStatus, setGenerationStatus] = useState<GenerationStatus | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (isActive && projectId) {
+    if (isActive && (projectId || generationId)) {
       loadGenerationStatus();
-      
-      // Poll for updates every 2 seconds during active generation
       const interval = setInterval(loadGenerationStatus, 2000);
-      
       return () => clearInterval(interval);
     }
-  }, [projectId, isActive]);
+  }, [projectId, generationId, isActive]);
 
   const loadGenerationStatus = async () => {
-    if (!projectId) return;
-    
+    if (!projectId && !generationId) return;
     setIsLoading(true);
     try {
-      // First, get project to find latest generation
-      const projectResponse = await fetch(`http://localhost:3000/api/projects/${projectId}`, {
-        headers: {
-          'Authorization': 'Bearer 76e12c09f37287ce35970ccdfc37a303d6425a0d28ff0c3dba219123a790b591580118d95626608f82de385bab02cc81dcdaff5a98fd8d01080b7c25bd29129f'
+      let genId = generationId;
+
+      // If generationId is not provided, get latest from project
+      if (!genId && projectId) {
+        const projectResponse = await api.getProject(projectId);
+        const generations = (projectResponse as any).data.generations as Array<{ id: string }> | undefined;
+        if (!generations || generations.length === 0) {
+          setIsLoading(false);
+          return;
         }
-      });
-      
-      if (projectResponse.ok) {
-        const projectData = await projectResponse.json();
-        const generations = projectData.data.generations;
-        
-        if (generations && generations.length > 0) {
-          const latestGeneration = generations[0]; // Most recent
-          
-          // Get detailed generation status
-          const generationResponse = await fetch(`http://localhost:3000/api/generation/${latestGeneration.id}`, {
-            headers: {
-              'Authorization': 'Bearer 76e12c09f37287ce35970ccdfc37a303d6425a0d28ff0c3dba219123a790b591580118d95626608f82de385bab02cc81dcdaff5a98fd8d01080b7c25bd29129f'
-            }
-          });
-          
-          if (generationResponse.ok) {
-            const generationData = await generationResponse.json();
-            setGenerationStatus(generationData.data);
-            try {
-              onStatusChange?.(generationData.data.status, generationData.data.progress);
-            } catch {}
-          }
-        }
+        genId = generations[0].id; // latest
       }
+
+      if (!genId) return;
+
+      const generationResponse = await api.getGeneration(genId);
+      const data = (generationResponse as any).data as GenerationStatus;
+      setGenerationStatus(data);
+      try {
+        onStatusChange?.(data.status, data.progress);
+      } catch {}
     } catch (error) {
       console.error('Failed to load generation status:', error);
     } finally {
@@ -101,7 +90,6 @@ export function RealProgressTracker({ projectId, isActive = false, onStatusChang
     } else if (status === 'FAILED') {
       return <AlertCircle className="w-4 h-4 text-red-600" />;
     } else {
-      // Pending - show type icon
       switch (type) {
         case 'SETUP':
           return <Settings className="w-4 h-4 text-gray-400" />;
@@ -157,7 +145,6 @@ export function RealProgressTracker({ projectId, isActive = false, onStatusChang
       animate={{ opacity: 1, y: 0 }}
       className="space-y-4"
     >
-      {/* Header */}
       <div className="flex items-center justify-between">
         <h4 className="text-sm font-semibold text-gray-900 flex items-center">
           {isGenerating ? (
@@ -176,7 +163,6 @@ export function RealProgressTracker({ projectId, isActive = false, onStatusChang
         </span>
       </div>
 
-      {/* Overall Progress Bar */}
       <div className="w-full bg-gray-200 rounded-full h-2">
         <motion.div
           initial={{ width: 0 }}
@@ -192,14 +178,12 @@ export function RealProgressTracker({ projectId, isActive = false, onStatusChang
         />
       </div>
 
-      {/* Time Estimate */}
       {isGenerating && estimatedTimeRemaining > 0 && (
         <div className="text-xs text-gray-500 text-center">
           ~{estimatedTimeRemaining} min restantes
         </div>
       )}
 
-      {/* Current Step Highlight */}
       {generationStatus.currentStep && isGenerating && (
         <motion.div
           initial={{ scale: 0.95, opacity: 0 }}
@@ -212,65 +196,27 @@ export function RealProgressTracker({ projectId, isActive = false, onStatusChang
         </motion.div>
       )}
 
-      {/* Steps */}
       <div className="space-y-2">
         {generationStatus.steps.map((step, index) => (
           <motion.div
             key={step.id}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: index * 0.1 }}
-            className={`flex items-center p-3 rounded-lg border ${getStepColor(step.status)}`}
+            transition={{ delay: index * 0.05 }}
+            className={`p-3 rounded-lg border ${getStepColor(step.status)} flex items-center justify-between`}
           >
-            <div className="flex-shrink-0 mr-3">
+            <div className="flex items-center space-x-3">
               {getStatusIcon(step.status, step.type)}
-            </div>
-            
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between mb-1">
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm font-medium">
-                    {step.name}
-                  </span>
-                  <span className="text-xs px-2 py-1 bg-white/50 rounded-full">
-                    {getTypeLabel(step.type)}
-                  </span>
+              <div>
+                <div className="text-sm font-medium">{step.name}</div>
+                <div className="text-xs text-gray-600">
+                  {getTypeLabel(step.type)} • {Math.round(step.progress)}%
                 </div>
-                {step.status === 'RUNNING' && (
-                  <span className="text-sm font-medium">
-                    {step.progress}%
-                  </span>
-                )}
               </div>
-              
-              <p className="text-xs opacity-75 mb-2">
-                {step.description}
-              </p>
-              
-              {step.status === 'RUNNING' && (
-                <div className="w-full bg-white/50 rounded-full h-1.5">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${step.progress}%` }}
-                    transition={{ duration: 0.3 }}
-                    className="bg-blue-600 h-1.5 rounded-full"
-                  />
-                </div>
-              )}
             </div>
+            <span className="text-xs text-gray-500">#{step.order}</span>
           </motion.div>
         ))}
-      </div>
-
-      {/* Status Footer */}
-      <div className="text-xs text-gray-500 text-center pt-2 border-t border-gray-200">
-        {isGenerating ? (
-          "IA trabalhando em tempo real..."
-        ) : generationStatus.status === 'COMPLETED' ? (
-          `Geração concluída com ${completedSteps} de ${generationStatus.totalSteps} etapas`
-        ) : (
-          `Geração interrompida (${completedSteps} de ${generationStatus.totalSteps} etapas concluídas)`
-        )}
       </div>
     </motion.div>
   );

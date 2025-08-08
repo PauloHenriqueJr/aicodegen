@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { User, Project, ChatMessage, GenerationTask } from '../types';
 import { mockUser, mockProjects, mockChatMessages } from './mock-data';
+import { api } from './api';
 
 interface AppContextType {
   user: User | null;
@@ -29,22 +30,67 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const isAuthenticated = !!user;
 
-  // Initialize with mock data for demonstration
+  // Initialize auth from token and load user/projects
   useEffect(() => {
-    // Simulate loading user data from localStorage or API
-    const savedUser = localStorage.getItem('aicodegen-user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-      setProjects(mockProjects);
-    }
+    const init = async () => {
+      try {
+        const token = localStorage.getItem('auth_token');
+        const cachedUser = localStorage.getItem('aicodegen-user');
+
+        if (token) {
+          // Attempt to load profile from API
+          const profile = await api.getProfile();
+          const apiUser = profile.data as unknown as User;
+          setUser(apiUser);
+          localStorage.setItem('aicodegen-user', JSON.stringify(apiUser));
+
+          // Try to load projects from API; fallback to mock if fails
+          try {
+            const res = await api.getProjects();
+            // Backend DTO -> frontend mapping
+            const apiProjects = (res.data || []) as any[];
+            const mapped: Project[] = apiProjects.map((p) => ({
+              id: p.id,
+              name: p.name,
+              description: p.prompt || p.description || '',
+              type: 'react',
+              status: (p.status?.toLowerCase?.() || 'completed') as Project['status'],
+              progress: typeof p.progress === 'number' ? p.progress : 100,
+              createdAt: new Date(p.createdAt || Date.now()),
+              updatedAt: new Date(p.updatedAt || p.createdAt || Date.now()),
+              userId: apiUser.id,
+              files: [],
+              figmaFrames: [],
+              preview: p.preview || undefined,
+            }));
+            setProjects(mapped);
+          } catch {
+            setProjects(mockProjects);
+          }
+        } else if (cachedUser) {
+          // Legacy cached user without token (demo mode)
+          setUser(JSON.parse(cachedUser));
+          setProjects(mockProjects);
+        }
+      } catch {
+        // If anything fails, keep demo state
+        const cachedUser = localStorage.getItem('aicodegen-user');
+        if (cachedUser) {
+          setUser(JSON.parse(cachedUser));
+          setProjects(mockProjects);
+        }
+      }
+    };
+
+    void init();
   }, []);
 
   const addMessage = (message: ChatMessage) => {
-    setMessages(prev => [...prev, message]);
+    setMessages((prev) => [...prev, message]);
   };
 
   const updateProject = (project: Project) => {
-    setProjects(prev => prev.map(p => p.id === project.id ? project : p));
+    setProjects((prev) => prev.map((p) => (p.id === project.id ? project : p)));
     if (currentProject?.id === project.id) {
       setCurrentProject(project);
     }
@@ -63,14 +109,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setGenerationTask,
     addMessage,
     updateProject,
-    isAuthenticated
+    isAuthenticated,
   };
 
-  return (
-    <AppContext.Provider value={value}>
-      {children}
-    </AppContext.Provider>
-  );
+  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }
 
 export function useApp() {
@@ -81,40 +123,56 @@ export function useApp() {
   return context;
 }
 
-// Mock authentication functions
+// API-backed authentication helpers (kept under same name for compatibility)
 export const mockAuth = {
   login: async (email: string, password: string) => {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const user = { ...mockUser, email };
-    localStorage.setItem('aicodegen-user', JSON.stringify(user));
-    return user;
+    // Prefer real API; fallback to demo
+    try {
+      const res = await api.login(email, password);
+      const { token, user } = res.data;
+      api.setToken(token);
+      localStorage.setItem('aicodegen-user', JSON.stringify(user));
+      return user as unknown as User;
+    } catch {
+      // Demo mode
+      await new Promise((resolve) => setTimeout(resolve, 700));
+      const demoUser = { ...mockUser, email } as User;
+      localStorage.setItem('aicodegen-user', JSON.stringify(demoUser));
+      return demoUser;
+    }
   },
-  
+
   register: async (name: string, email: string, password: string) => {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    const user = { ...mockUser, name, email };
-    localStorage.setItem('aicodegen-user', JSON.stringify(user));
-    return user;
+    try {
+      const res = await api.register(name, email, password);
+      const { token, user } = res.data;
+      api.setToken(token);
+      localStorage.setItem('aicodegen-user', JSON.stringify(user));
+      return user as unknown as User;
+    } catch {
+      // Demo mode
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const demoUser = { ...mockUser, name, email } as User;
+      localStorage.setItem('aicodegen-user', JSON.stringify(demoUser));
+      return demoUser;
+    }
   },
-  
+
   logout: () => {
+    api.setToken(null);
     localStorage.removeItem('aicodegen-user');
+    localStorage.removeItem('auth_token');
   },
-  
+
   socialLogin: async (provider: 'google' | 'github') => {
-    // Simulate social login
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const user = { 
-      ...mockUser, 
+    // Placeholder: implement real OAuth later; keep demo experience
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    const user = {
+      ...mockUser,
       name: provider === 'google' ? 'Google User' : 'GitHub User',
-      email: `user@${provider}.com`
-    };
+      email: `user@${provider}.com`,
+    } as User;
     localStorage.setItem('aicodegen-user', JSON.stringify(user));
     return user;
-  }
+  },
 };

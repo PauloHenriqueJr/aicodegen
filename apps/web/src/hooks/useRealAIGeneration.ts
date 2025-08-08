@@ -48,7 +48,7 @@ export function useRealAIGeneration({
   // Convert API step to UI step format
   const convertStep = useCallback((step: any): GenerationStep => ({
     id: step.id,
-    type: step.type.toLowerCase() as GenerationStep['type'],
+    type: (step.type?.toLowerCase?.() || 'setup') as GenerationStep['type'],
     name: step.name,
     description: step.description,
     progress: step.progress || 0,
@@ -60,17 +60,17 @@ export function useRealAIGeneration({
   const pollGeneration = useCallback(async (id: string) => {
     try {
       const response = await api.getGeneration(id);
-      const generation = response.data;
+      const generation = response.data as any;
       
       // Update progress
-      setGenerationProgress(generation.progress);
+      setGenerationProgress(generation.progress ?? 0);
       
       // Update steps
-      const steps = generation.steps.map(convertStep);
+      const steps = (generation.steps || []).map(convertStep);
       setGenerationSteps(steps);
       
       // Find current step
-      const currentStepData = generation.steps.find(s => s.status === 'RUNNING');
+      const currentStepData = (generation.steps || []).find((s: any) => s.status === 'RUNNING');
       if (currentStepData) {
         const currentStepConverted = convertStep(currentStepData);
         setCurrentStep(currentStepConverted);
@@ -111,12 +111,12 @@ export function useRealAIGeneration({
   const loadProjectScreens = useCallback(async (projId: string) => {
     try {
       const response = await api.getProject(projId);
-      const project = response.data;
+      const project = response.data as any;
       
-      const screens: ScreenFrame[] = project.screens.map(screen => ({
+      const screens: ScreenFrame[] = (project.screens || []).map((screen: any) => ({
         id: screen.id,
         name: screen.name,
-        type: screen.type.toLowerCase() as ScreenFrame['type'],
+        type: (screen.type?.toLowerCase?.() || 'desktop') as ScreenFrame['type'],
         width: screen.width,
         height: screen.height,
         x: screen.x,
@@ -131,7 +131,7 @@ export function useRealAIGeneration({
       setGeneratedScreens(screens);
       
       // Notify about new screens
-      screens.forEach(screen => {
+      screens.forEach((screen) => {
         onScreenGenerated?.(screen);
       });
     } catch (error) {
@@ -151,12 +151,12 @@ export function useRealAIGeneration({
     try {
       // Start generation via API
       const response = await api.startGeneration(projectId, prompt);
-      const generation = response.data;
+      const generation = (response as any).data;
       
       setGenerationId(generation.generationId);
       
       // Convert and set initial steps
-      const steps = generation.steps.map(convertStep);
+      const steps = (generation.steps || []).map(convertStep);
       setGenerationSteps(steps);
       
       // Start polling for updates
@@ -176,7 +176,7 @@ export function useRealAIGeneration({
       
     } catch (error: any) {
       setIsGenerating(false);
-      setError(error.message || 'Failed to start generation');
+      setError(error?.message || 'Failed to start generation');
       console.error('Error starting generation:', error);
     }
   }, [isGenerating, projectId, convertStep, pollGeneration]);
@@ -219,9 +219,10 @@ export function useRealAIGeneration({
     generationSteps,
     generatedScreens,
     generationProgress,
-    error,
     startGeneration,
     stopGeneration,
     resetGeneration,
+    error,
+    generationId,
   };
 }

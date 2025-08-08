@@ -25,7 +25,6 @@ function LoginComponent() {
     setIsLoading(true);
 
     try {
-      // Read values directly from the form
       const form = e.target as HTMLFormElement;
       const email = (form.querySelector("#email") as HTMLInputElement)?.value;
       const password = (form.querySelector("#password") as HTMLInputElement)?.value;
@@ -36,10 +35,12 @@ function LoginComponent() {
         : await mockAuth.register(name, email, password);
 
       setUser(user);
+      // Try to load projects later from API; keep mock immediate UX
       setProjects(mockProjects);
 
-      // After login, continue pending prompt flow if exists// Always go to central chat after auth, where we list projects and optionally continue
       router.navigate({ to: "/chat" });
+    } catch (err) {
+      console.error('Auth failed', err);
     } finally {
       setIsLoading(false);
     }
@@ -52,6 +53,8 @@ function LoginComponent() {
       setUser(user);
       setProjects(mockProjects);
       router.navigate({ to: "/chat" });
+    } catch (err) {
+      console.error('Social login failed', err);
     } finally {
       setIsLoading(false);
     }
