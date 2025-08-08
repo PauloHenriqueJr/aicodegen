@@ -1,7 +1,7 @@
 import type { User } from '../types';
 import { GoogleAuthService } from './google-auth';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://aicodegen-server-virid.vercel.app';
 
 // Função para decodificar JWT (simplificada para demo)
 function parseJWT(token: string) {
