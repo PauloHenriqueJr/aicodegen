@@ -8,6 +8,7 @@ import { serve } from "@hono/node-server";
 import authRouter from "./routes/auth";
 import projectsRouter from "./routes/projects";
 import generationRouter from "./routes/generation";
+import debugRouter from "./routes/debug";
 
 // Import utilities
 import { ApiResponseHelper } from "./lib/response";
@@ -83,6 +84,7 @@ app.get("/health", (c) => {
 app.route("/api/auth", authRouter);
 app.route("/api/projects", projectsRouter);
 app.route("/api/generation", generationRouter);
+app.route("/api/debug", debugRouter);
 
 // 404 handler
 app.notFound((c) => {
