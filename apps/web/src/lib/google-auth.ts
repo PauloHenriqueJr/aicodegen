@@ -33,7 +33,16 @@ declare global {
 }
 
 // Google OAuth configuration
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'your-google-client-id';
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || 
+                        import.meta.env.VITE_GOOGLE_CLIENT_ID_PROD || 
+                        '207876045519-7trlg013advn4qqks8vlsp2nqbghap8d.apps.googleusercontent.com';
+
+console.log('🔧 Google Auth Debug:', {
+  'import.meta.env.VITE_GOOGLE_CLIENT_ID': import.meta.env.VITE_GOOGLE_CLIENT_ID,
+  'import.meta.env.MODE': import.meta.env.MODE,
+  'import.meta.env.PROD': import.meta.env.PROD,
+  'GOOGLE_CLIENT_ID (final)': GOOGLE_CLIENT_ID
+});
 
 export class GoogleAuthService {
   private static isInitialized = false;
@@ -85,9 +94,14 @@ export class GoogleAuthService {
     try {
       await this.initialize();
       
-      if (!GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID === 'your-google-client-id') {
+      if (!GOOGLE_CLIENT_ID || 
+          GOOGLE_CLIENT_ID === 'your-google-client-id' || 
+          GOOGLE_CLIENT_ID.length < 10) {
+        console.error('❌ Google Client ID inválido:', GOOGLE_CLIENT_ID);
         throw new Error('Google Client ID não configurado. Verifique a variável VITE_GOOGLE_CLIENT_ID no arquivo .env');
       }
+
+      console.log('✅ Usando Google Client ID:', GOOGLE_CLIENT_ID);
 
       console.log('Iniciando login com Google...');
       console.log('Client ID:', GOOGLE_CLIENT_ID);

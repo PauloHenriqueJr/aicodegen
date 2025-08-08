@@ -53,7 +53,14 @@ jobs:
         echo "🔍 Verificando variáveis de ambiente no build:"
         echo "VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID"
         echo "NODE_ENV=$NODE_ENV"
+        
+        # Criar arquivo .env.production com as variáveis necessárias
         cd apps/web
+        echo "VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID" > .env.production
+        echo "VITE_API_URL=https://paulohenriquejr.github.io" >> .env.production
+        echo "📝 Conteúdo do .env.production:"
+        cat .env.production
+        
         npm run build
         # Copiar 404.html para o diretório de build (fix para SPAs)
         cp public/404.html dist/
@@ -62,6 +69,13 @@ jobs:
           echo "❌ Client ID padrão encontrado no bundle - variável não foi injetada"
         else
           echo "✅ Client ID padrão não encontrado - variável provavelmente foi injetada"
+        fi
+        
+        # Verificar se o Client ID real está no bundle
+        if grep -r "207876045519-7trlg013advn4qqks8vlsp2nqbghap8d" dist/; then
+          echo "✅ Client ID real encontrado no bundle"
+        else
+          echo "❌ Client ID real NÃO encontrado no bundle"
         fi
       env:
         NODE_ENV: production
