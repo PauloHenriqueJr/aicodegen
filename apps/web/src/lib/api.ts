@@ -1,4 +1,7 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_URL = `${API_BASE_URL}/api`;
+
+export { API_BASE_URL, API_URL };
 
 export class ApiError extends Error {
   constructor(
@@ -15,9 +18,8 @@ class ApiClient {
   private baseUrl: string;
   private token: string | null = null;
 
-  constructor(baseUrl: string) {
-    this.baseUrl = baseUrl;
-    this.token = localStorage.getItem('auth_token');
+  constructor() {
+    this.baseUrl = API_URL;
   }
 
   setToken(token: string | null) {
@@ -220,4 +222,4 @@ class ApiClient {
   }
 }
 
-export const api = new ApiClient(API_BASE_URL);
+export const api = new ApiClient();

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "./ui/button";
 import { authenticatedFetch } from "../lib/auth-utils";
+import { API_BASE_URL } from "../lib/api";
 import { 
   Monitor, 
   Tablet, 
@@ -53,7 +54,9 @@ export function PreviewPane({ device = 'desktop', projectId, refreshSignal }: Pr
     try {
       if (projectId) {
         // Load real generated code from backend using authenticated fetch
-        const response = await authenticatedFetch(`http://localhost:3000/api/projects/${projectId}/preview`);
+        const response = await authenticatedFetch(`${API_BASE_URL}/api/projects/${projectId}/code`, {
+          method: 'GET'
+        });
         
         if (response.ok) {
           const data = await response.json();

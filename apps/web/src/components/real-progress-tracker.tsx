@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Check, Clock, AlertCircle, Loader2, Code, Monitor, Settings, Zap } from "lucide-react";
+import { API_BASE_URL } from "../lib/api";
 
 interface RealProgressTrackerProps {
   projectId: string;
@@ -48,7 +49,7 @@ export function RealProgressTracker({ projectId, isActive = false, onStatusChang
     setIsLoading(true);
     try {
       // First, get project to find latest generation
-      const projectResponse = await fetch(`http://localhost:3000/api/projects/${projectId}`, {
+      const projectResponse = await fetch(`${API_BASE_URL}/api/projects/${projectId}`, {
         headers: {
           'Authorization': 'Bearer 76e12c09f37287ce35970ccdfc37a303d6425a0d28ff0c3dba219123a790b591580118d95626608f82de385bab02cc81dcdaff5a98fd8d01080b7c25bd29129f'
         }
@@ -62,7 +63,7 @@ export function RealProgressTracker({ projectId, isActive = false, onStatusChang
           const latestGeneration = generations[0]; // Most recent
           
           // Get detailed generation status
-          const generationResponse = await fetch(`http://localhost:3000/api/generation/${latestGeneration.id}`, {
+          const generationResponse = await fetch(`${API_BASE_URL}/api/generation/${latestGeneration.id}`, {
             headers: {
               'Authorization': 'Bearer 76e12c09f37287ce35970ccdfc37a303d6425a0d28ff0c3dba219123a790b591580118d95626608f82de385bab02cc81dcdaff5a98fd8d01080b7c25bd29129f'
             }

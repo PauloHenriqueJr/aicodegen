@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "./ui/button";
+import { API_BASE_URL } from "../lib/api";
 import { 
   Download, 
   Copy, 
@@ -331,7 +332,7 @@ export function CodeEditor({ projectId, refreshSignal }: CodeEditorProps) {
   const loadGeneratedCode = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`http://localhost:3000/api/projects/${projectId}/code`, {
+      const response = await fetch(`${API_BASE_URL}/api/projects/${projectId}/code`, {
         headers: {
           'Authorization': 'Bearer 76e12c09f37287ce35970ccdfc37a303d6425a0d28ff0c3dba219123a790b591580118d95626608f82de385bab02cc81dcdaff5a98fd8d01080b7c25bd29129f'
         }

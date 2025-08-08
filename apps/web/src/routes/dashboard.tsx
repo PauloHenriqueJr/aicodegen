@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import { Button } from "../components/ui/button";
+import { API_BASE_URL } from "../lib/api";
 import { 
   Sparkles, 
   Settings, 
@@ -132,7 +133,7 @@ function DashboardComponent() {
 
   const startRealGeneration = async (prompt: string) => {
     try {
-      const response = await fetch('http://localhost:3000/api/generation/start', {
+      const response = await fetch(`${API_BASE_URL}/api/generation/start`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -274,7 +275,7 @@ ${data.data.steps.map((step: any, i: number) =>
 
     try {
       // Call real API first
-      const response = await fetch('http://localhost:3000/api/projects/cme23d2zj0004s1jcf3tyl2sr/messages', {
+      const response = await fetch(`${API_BASE_URL}/api/projects/cme23d2zj0004s1jcf3tyl2sr/messages`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
