@@ -40,6 +40,7 @@ export type UserMinAggregateOutputType = {
   email: string | null
   name: string | null
   avatar: string | null
+  googleId: string | null
   plan: $Enums.Plan | null
   credits: number | null
   maxCredits: number | null
@@ -52,6 +53,7 @@ export type UserMaxAggregateOutputType = {
   email: string | null
   name: string | null
   avatar: string | null
+  googleId: string | null
   plan: $Enums.Plan | null
   credits: number | null
   maxCredits: number | null
@@ -64,6 +66,7 @@ export type UserCountAggregateOutputType = {
   email: number
   name: number
   avatar: number
+  googleId: number
   plan: number
   credits: number
   maxCredits: number
@@ -88,6 +91,7 @@ export type UserMinAggregateInputType = {
   email?: true
   name?: true
   avatar?: true
+  googleId?: true
   plan?: true
   credits?: true
   maxCredits?: true
@@ -100,6 +104,7 @@ export type UserMaxAggregateInputType = {
   email?: true
   name?: true
   avatar?: true
+  googleId?: true
   plan?: true
   credits?: true
   maxCredits?: true
@@ -112,6 +117,7 @@ export type UserCountAggregateInputType = {
   email?: true
   name?: true
   avatar?: true
+  googleId?: true
   plan?: true
   credits?: true
   maxCredits?: true
@@ -211,6 +217,7 @@ export type UserGroupByOutputType = {
   email: string
   name: string
   avatar: string | null
+  googleId: string | null
   plan: $Enums.Plan
   credits: number
   maxCredits: number
@@ -246,6 +253,7 @@ export type UserWhereInput = {
   email?: Prisma.StringFilter<"User"> | string
   name?: Prisma.StringFilter<"User"> | string
   avatar?: Prisma.StringNullableFilter<"User"> | string | null
+  googleId?: Prisma.StringNullableFilter<"User"> | string | null
   plan?: Prisma.EnumPlanFilter<"User"> | $Enums.Plan
   credits?: Prisma.IntFilter<"User"> | number
   maxCredits?: Prisma.IntFilter<"User"> | number
@@ -260,6 +268,7 @@ export type UserOrderByWithRelationInput = {
   email?: Prisma.SortOrder
   name?: Prisma.SortOrder
   avatar?: Prisma.SortOrderInput | Prisma.SortOrder
+  googleId?: Prisma.SortOrderInput | Prisma.SortOrder
   plan?: Prisma.SortOrder
   credits?: Prisma.SortOrder
   maxCredits?: Prisma.SortOrder
@@ -272,6 +281,7 @@ export type UserOrderByWithRelationInput = {
 export type UserWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   email?: string
+  googleId?: string
   AND?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   OR?: Prisma.UserWhereInput[]
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
@@ -284,13 +294,14 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   projects?: Prisma.ProjectListRelationFilter
   sessions?: Prisma.SessionListRelationFilter
-}, "id" | "email">
+}, "id" | "email" | "googleId">
 
 export type UserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   email?: Prisma.SortOrder
   name?: Prisma.SortOrder
   avatar?: Prisma.SortOrderInput | Prisma.SortOrder
+  googleId?: Prisma.SortOrderInput | Prisma.SortOrder
   plan?: Prisma.SortOrder
   credits?: Prisma.SortOrder
   maxCredits?: Prisma.SortOrder
@@ -311,6 +322,7 @@ export type UserScalarWhereWithAggregatesInput = {
   email?: Prisma.StringWithAggregatesFilter<"User"> | string
   name?: Prisma.StringWithAggregatesFilter<"User"> | string
   avatar?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  googleId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   plan?: Prisma.EnumPlanWithAggregatesFilter<"User"> | $Enums.Plan
   credits?: Prisma.IntWithAggregatesFilter<"User"> | number
   maxCredits?: Prisma.IntWithAggregatesFilter<"User"> | number
@@ -323,6 +335,7 @@ export type UserCreateInput = {
   email: string
   name: string
   avatar?: string | null
+  googleId?: string | null
   plan?: $Enums.Plan
   credits?: number
   maxCredits?: number
@@ -337,6 +350,7 @@ export type UserUncheckedCreateInput = {
   email: string
   name: string
   avatar?: string | null
+  googleId?: string | null
   plan?: $Enums.Plan
   credits?: number
   maxCredits?: number
@@ -351,6 +365,7 @@ export type UserUpdateInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   credits?: Prisma.IntFieldUpdateOperationsInput | number
   maxCredits?: Prisma.IntFieldUpdateOperationsInput | number
@@ -365,6 +380,7 @@ export type UserUncheckedUpdateInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   credits?: Prisma.IntFieldUpdateOperationsInput | number
   maxCredits?: Prisma.IntFieldUpdateOperationsInput | number
@@ -379,6 +395,7 @@ export type UserCreateManyInput = {
   email: string
   name: string
   avatar?: string | null
+  googleId?: string | null
   plan?: $Enums.Plan
   credits?: number
   maxCredits?: number
@@ -391,6 +408,7 @@ export type UserUpdateManyMutationInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   credits?: Prisma.IntFieldUpdateOperationsInput | number
   maxCredits?: Prisma.IntFieldUpdateOperationsInput | number
@@ -403,6 +421,7 @@ export type UserUncheckedUpdateManyInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   credits?: Prisma.IntFieldUpdateOperationsInput | number
   maxCredits?: Prisma.IntFieldUpdateOperationsInput | number
@@ -415,6 +434,7 @@ export type UserCountOrderByAggregateInput = {
   email?: Prisma.SortOrder
   name?: Prisma.SortOrder
   avatar?: Prisma.SortOrder
+  googleId?: Prisma.SortOrder
   plan?: Prisma.SortOrder
   credits?: Prisma.SortOrder
   maxCredits?: Prisma.SortOrder
@@ -432,6 +452,7 @@ export type UserMaxOrderByAggregateInput = {
   email?: Prisma.SortOrder
   name?: Prisma.SortOrder
   avatar?: Prisma.SortOrder
+  googleId?: Prisma.SortOrder
   plan?: Prisma.SortOrder
   credits?: Prisma.SortOrder
   maxCredits?: Prisma.SortOrder
@@ -444,6 +465,7 @@ export type UserMinOrderByAggregateInput = {
   email?: Prisma.SortOrder
   name?: Prisma.SortOrder
   avatar?: Prisma.SortOrder
+  googleId?: Prisma.SortOrder
   plan?: Prisma.SortOrder
   credits?: Prisma.SortOrder
   maxCredits?: Prisma.SortOrder
@@ -518,6 +540,7 @@ export type UserCreateWithoutSessionsInput = {
   email: string
   name: string
   avatar?: string | null
+  googleId?: string | null
   plan?: $Enums.Plan
   credits?: number
   maxCredits?: number
@@ -531,6 +554,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   email: string
   name: string
   avatar?: string | null
+  googleId?: string | null
   plan?: $Enums.Plan
   credits?: number
   maxCredits?: number
@@ -560,6 +584,7 @@ export type UserUpdateWithoutSessionsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   credits?: Prisma.IntFieldUpdateOperationsInput | number
   maxCredits?: Prisma.IntFieldUpdateOperationsInput | number
@@ -573,6 +598,7 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   credits?: Prisma.IntFieldUpdateOperationsInput | number
   maxCredits?: Prisma.IntFieldUpdateOperationsInput | number
@@ -586,6 +612,7 @@ export type UserCreateWithoutProjectsInput = {
   email: string
   name: string
   avatar?: string | null
+  googleId?: string | null
   plan?: $Enums.Plan
   credits?: number
   maxCredits?: number
@@ -599,6 +626,7 @@ export type UserUncheckedCreateWithoutProjectsInput = {
   email: string
   name: string
   avatar?: string | null
+  googleId?: string | null
   plan?: $Enums.Plan
   credits?: number
   maxCredits?: number
@@ -628,6 +656,7 @@ export type UserUpdateWithoutProjectsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   credits?: Prisma.IntFieldUpdateOperationsInput | number
   maxCredits?: Prisma.IntFieldUpdateOperationsInput | number
@@ -641,6 +670,7 @@ export type UserUncheckedUpdateWithoutProjectsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   credits?: Prisma.IntFieldUpdateOperationsInput | number
   maxCredits?: Prisma.IntFieldUpdateOperationsInput | number
@@ -694,6 +724,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   email?: boolean
   name?: boolean
   avatar?: boolean
+  googleId?: boolean
   plan?: boolean
   credits?: boolean
   maxCredits?: boolean
@@ -709,6 +740,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   email?: boolean
   name?: boolean
   avatar?: boolean
+  googleId?: boolean
   plan?: boolean
   credits?: boolean
   maxCredits?: boolean
@@ -721,6 +753,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   email?: boolean
   name?: boolean
   avatar?: boolean
+  googleId?: boolean
   plan?: boolean
   credits?: boolean
   maxCredits?: boolean
@@ -733,6 +766,7 @@ export type UserSelectScalar = {
   email?: boolean
   name?: boolean
   avatar?: boolean
+  googleId?: boolean
   plan?: boolean
   credits?: boolean
   maxCredits?: boolean
@@ -740,7 +774,7 @@ export type UserSelectScalar = {
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "name" | "avatar" | "plan" | "credits" | "maxCredits" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "name" | "avatar" | "googleId" | "plan" | "credits" | "maxCredits" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   projects?: boolean | Prisma.User$projectsArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
@@ -760,6 +794,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     email: string
     name: string
     avatar: string | null
+    googleId: string | null
     plan: $Enums.Plan
     credits: number
     maxCredits: number
@@ -1194,6 +1229,7 @@ export interface UserFieldRefs {
   readonly email: Prisma.FieldRef<"User", 'String'>
   readonly name: Prisma.FieldRef<"User", 'String'>
   readonly avatar: Prisma.FieldRef<"User", 'String'>
+  readonly googleId: Prisma.FieldRef<"User", 'String'>
   readonly plan: Prisma.FieldRef<"User", 'Plan'>
   readonly credits: Prisma.FieldRef<"User", 'Int'>
   readonly maxCredits: Prisma.FieldRef<"User", 'Int'>

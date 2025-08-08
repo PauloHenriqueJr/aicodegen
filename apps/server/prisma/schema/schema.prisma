@@ -14,6 +14,7 @@ model User {
   email     String   @unique
   name      String
   avatar    String?
+  googleId  String?  @unique
   plan      Plan     @default(FREE)
   credits   Int      @default(50)
   maxCredits Int     @default(50)
