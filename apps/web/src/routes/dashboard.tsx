@@ -24,8 +24,7 @@ import {
   Sun
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { mockUser, mockChatMessages, mockGenerationTask } from "../lib/mock-data";
-import type { ChatMessage, TabType, GenerationTask } from "../types";
+import type { ChatMessage, TabType } from "../types";
 import { Sidebar } from "../components/sidebar";
 import { CodeEditor } from "../components/code-editor";
 import { PreviewPane } from "../components/preview-pane";
@@ -33,7 +32,7 @@ import { CanvasPane } from "../components/canvas-pane";
 import { useTheme } from "../components/theme-provider";
 import { SettingsDialog } from "../components/settings-dialog";
 import { useRealAIGeneration } from "../hooks/useRealAIGeneration";
-import { useApp, mockAuth } from "../lib/app-context";
+import { useApp } from "../lib/app-context";
 
 interface DashboardSearch {
   project?: string;
@@ -53,14 +52,21 @@ function DashboardComponent() {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
   const { setUser, setProjects } = useApp();
-  const [messages, setMessages] = useState<ChatMessage[]>(mockChatMessages);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>("preview");
   const [showSidebar, setShowSidebar] = useState(true);
   const [generationTask, setGenerationTask] = useState<GenerationTask | null>(null);
   const [projectName, setProjectName] = useState("");
   const [showSettings, setShowSettings] = useState(false);
-  const [currentUser, setCurrentUser] = useState(mockUser);
+  const [currentUser, setCurrentUser] = useState({
+    id: "user-1",
+    name: "Usuário",
+    email: "usuario@exemplo.com",
+    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
+    credits: 50,
+    plan: "Gratuito" as const
+  });
   const [hasInitialized, setHasInitialized] = useState(false);
   const [currentProject, setCurrentProject] = useState<any>(null);
   const stepMessagesRef = useRef<Set<string>>(new Set());
@@ -789,7 +795,9 @@ export const useTheme = () => {
 
   const handleLogout = () => {
     // Clear auth and user state
-    mockAuth.logout();
+    // TODO: Implement real logout
+    localStorage.removeItem('auth_token');
+    router.navigate({ to: "/login" });
     setUser(null);
     setProjects([]);
     // Navigate to home page

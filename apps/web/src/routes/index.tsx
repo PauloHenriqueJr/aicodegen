@@ -10,25 +10,8 @@ export const Route = createFileRoute("/")({
 });
 
 function HomeComponent() {
-  // Force light mode on landing page
-  useEffect(() => {
-    document.documentElement.classList.remove('dark');
-    return () => {
-      // Restore theme when leaving the page
-      const theme = localStorage.getItem('aicodegen-theme') || 'system';
-      if (theme === 'dark') {
-        document.documentElement.classList.add('dark');
-      } else if (theme === 'system') {
-        const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        if (systemDark) {
-          document.documentElement.classList.add('dark');
-        }
-      }
-    };
-  }, []);
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       {/* Header */}
       <header className="container mx-auto px-4 py-6 flex items-center justify-between">
         <div className="flex items-center space-x-2">
@@ -40,10 +23,10 @@ function HomeComponent() {
           </span>
         </div>
         <nav className="hidden md:flex items-center space-x-6">
-          <a href="#recursos" className="text-gray-600 hover:text-gray-900">Recursos</a>
-          <a href="#precos" className="text-gray-600 hover:text-gray-900">Preços</a>
-          <a href="#documentacao" className="text-gray-600 hover:text-gray-900">Documentação</a>
-          <a href="#suporte" className="text-gray-600 hover:text-gray-900">Suporte</a>
+          <a href="#recursos" className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">Recursos</a>
+          <a href="#precos" className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">Preços</a>
+          <a href="#documentacao" className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">Documentação</a>
+          <a href="#suporte" className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">Suporte</a>
           <Link to="/login">
             <Button variant="outline" size="sm">Login</Button>
           </Link>
@@ -62,14 +45,14 @@ function HomeComponent() {
             Potencializado por IA
           </div>
           
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6">
             Crie aplicações{" "}
             <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               com prompts simples
             </span>
           </h1>
           
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
             Transforme suas ideias em aplicações React completas com designs profissionais.
             Nossa plataforma combina poder da IA com código production-ready em segundos.
           </p>
