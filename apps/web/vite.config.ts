@@ -1,3 +1,4 @@
+console.log('VITE_GOOGLE_CLIENT_ID (build):', process.env.VITE_GOOGLE_CLIENT_ID);
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
