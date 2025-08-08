@@ -211,11 +211,21 @@ authRouter.post(
       }
 
       // Check if user exists
-      let user = await AuthService.getUserByEmail(payload.email);
+      console.log('Verificando se usuário existe no banco...');
+      let user;
+      try {
+        user = await AuthService.getUserByEmail(payload.email);
+        console.log('Resultado da consulta:', user ? 'Usuário encontrado' : 'Usuário não encontrado');
+      } catch (dbError) {
+        console.error('Erro ao consultar banco de dados:', dbError);
+        return ApiResponseHelper.internalError(c, 'Database error');
+      }
 
       if (!user) {
         // Create new user if doesn't exist
-        user = await prisma.user.create({
+        console.log('Criando novo usuário...');
+        try {
+          user = await prisma.user.create({
           data: {
             email: payload.email,
             name: payload.name || payload.email.split('@')[0],
@@ -225,19 +235,40 @@ authRouter.post(
             googleId: payload.sub, // Store Google user ID
           },
         });
+        console.log('Novo usuário criado com sucesso');
+        } catch (createError) {
+          console.error('Erro ao criar usuário:', createError);
+          return ApiResponseHelper.internalError(c, 'Failed to create user');
+        }
       } else if (!user.googleId) {
         // Link Google account to existing user
-        user = await prisma.user.update({
+        console.log('Vinculando conta Google ao usuário existente...');
+        try {
+          user = await prisma.user.update({
           where: { id: user.id },
           data: {
             googleId: payload.sub,
             avatar: payload.picture || user.avatar,
           },
         });
+        } catch (updateError) {
+          console.error('Erro ao vincular conta Google:', updateError);
+          return ApiResponseHelper.internalError(c, 'Failed to link Google account');
+        }
       }
 
       // Create session
-      const { token, expiresAt } = await AuthService.createSession(user.id);
+      console.log('Criando sessão...');
+      let token, expiresAt;
+      try {
+        const sessionData = await AuthService.createSession(user.id);
+        token = sessionData.token;
+        expiresAt = sessionData.expiresAt;
+        console.log('Sessão criada com sucesso');
+      } catch (sessionError) {
+        console.error('Erro ao criar sessão:', sessionError);
+        return ApiResponseHelper.internalError(c, 'Failed to create session');
+      }
 
       return ApiResponseHelper.success(c, {
         user: {

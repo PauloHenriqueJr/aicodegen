@@ -92,6 +92,12 @@ app.notFound((c) => {
 // Error handler
 app.onError((err, c) => {
   console.error("Server Error:", err);
+  console.error("Error stack:", err.stack);
+  console.error("Error details:", {
+    message: err.message,
+    name: err.name,
+    cause: err.cause
+  });
   return ApiResponseHelper.internalError(c, "Internal server error");
 });
 
