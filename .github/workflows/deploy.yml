@@ -25,7 +25,10 @@ jobs:
     steps:
     - name: 📥 Checkout
       uses: actions/checkout@v4
-      
+
+    - name: Debug VITE_GOOGLE_CLIENT_ID
+      run: echo "VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID"
+
     - name: 🟢 Setup Node.js
       uses: actions/setup-node@v4
       with:
