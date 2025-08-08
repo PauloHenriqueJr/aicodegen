@@ -16,6 +16,8 @@ concurrency:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    env:
+      VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
