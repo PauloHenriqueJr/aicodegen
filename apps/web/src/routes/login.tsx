@@ -6,8 +6,8 @@ import { Label } from "../components/ui/label";
 import { Sparkles, Github, Mail, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { useApp, mockAuth } from "../lib/app-context";
-import { mockProjects } from "../lib/mock-data";
+import { useApp } from "../lib/app-context";
+import { AuthService } from "../lib/auth-service";
 
 export const Route = createFileRoute("/login")({
   component: LoginComponent,
@@ -17,12 +17,14 @@ function LoginComponent() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const { setUser, setProjects } = useApp();
+  const { setUser } = useApp();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
 
     try {
       // Read values directly from the form
@@ -31,31 +33,36 @@ function LoginComponent() {
       const password = (form.querySelector("#password") as HTMLInputElement)?.value;
       const name = (form.querySelector("#name") as HTMLInputElement)?.value;
 
-      const user = isLogin
-        ? await mockAuth.login(email, password)
-        : await mockAuth.register(name, email, password);
+      const authResponse = isLogin
+        ? await AuthService.loginWithCredentials(email, password)
+        : await AuthService.register(name, email, password);
 
-      setUser(user);
-      setProjects(mockProjects);
+      setUser(authResponse.user);
 
-      // After login, continue pending prompt flow if exists// Always go to central chat after auth, where we list projects and optionally continue
+      // Navigate to chat after successful authentication
       router.navigate({ to: "/chat" });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Authentication failed');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSocialLogin = async (provider: string) => {
+  const handleGoogleLogin = async () => {
     setIsLoading(true);
+    setError(null);
+    
     try {
-      const user = await mockAuth.socialLogin(provider as "google" | "github");
-      setUser(user);
-      setProjects(mockProjects);
+      const authResponse = await AuthService.loginWithGoogle();
+      setUser(authResponse.user);
       router.navigate({ to: "/chat" });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Google authentication failed');
     } finally {
       setIsLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-950 dark:via-gray-950 dark:to-gray-900 flex items-center justify-center p-4">
@@ -91,14 +98,20 @@ function LoginComponent() {
                   : "Comece a criar aplicações incríveis hoje"
                 }
               </p>
+              {error && (
+                <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
+                  <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+                </div>
+              )}
             </div>
 
             {/* Social Login Buttons */}
             <div className="space-y-3 mb-6">
+
               <Button
                 variant="outline"
                 className="w-full h-12 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200"
-                onClick={() => handleSocialLogin('google')}
+                onClick={handleGoogleLogin}
                 disabled={isLoading}
               >
                 <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
@@ -107,26 +120,23 @@ function LoginComponent() {
                   <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                 </svg>
-                Continuar com Google
-              </Button>
-
-              <Button
-                variant="outline"
-                className="w-full h-12 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200"
-                onClick={() => handleSocialLogin('github')}
-                disabled={isLoading}
-              >
-                <Github className="w-5 h-5 mr-3" />
-                Continuar com GitHub
+                {isLoading ? (
+                  <div className="flex items-center">
+                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2"></div>
+                    Entrando...
+                  </div>
+                ) : (
+                  "Continuar com Google"
+                )}
               </Button>
             </div>
 
             <div className="relative mb-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200"></div>
+                <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="bg-white px-4 text-gray-500">ou continue com email</span>
+                <span className="bg-white dark:bg-gray-950 px-4 text-gray-500 dark:text-gray-400">ou continue com email</span>
               </div>
             </div>
 
@@ -134,7 +144,7 @@ function LoginComponent() {
             <form onSubmit={handleSubmit} className="space-y-4">
               {!isLogin && (
                 <div>
-                  <Label htmlFor="name" className="text-sm font-medium text-gray-700">
+                  <Label htmlFor="name" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     Nome completo
                   </Label>
                   <Input
@@ -149,7 +159,7 @@ function LoginComponent() {
               )}
 
               <div>
-                <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                <Label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Email
                 </Label>
                 <Input
@@ -163,7 +173,7 @@ function LoginComponent() {
               </div>
 
               <div>
-                <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+                <Label htmlFor="password" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Senha
                 </Label>
                 <div className="relative mt-1">
@@ -193,7 +203,7 @@ function LoginComponent() {
                 <div className="text-right">
                   <button
                     type="button"
-                    className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                    className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
                   >
                     Esqueceu a senha?
                   </button>
@@ -217,12 +227,12 @@ function LoginComponent() {
             </form>
 
             <div className="mt-6 text-center">
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-gray-600 dark:text-gray-400">
                 {isLogin ? "Não tem uma conta? " : "Já tem uma conta? "}
               </span>
               <button
                 onClick={() => setIsLogin(!isLogin)}
-                className="text-sm font-medium text-blue-600 hover:text-blue-700"
+                className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
               >
                 {isLogin ? "Criar conta gratuita" : "Fazer login"}
               </button>
@@ -230,13 +240,13 @@ function LoginComponent() {
 
             {!isLogin && (
               <div className="mt-6 text-center">
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
                   Ao continuar, você concorda com nossos{" "}
-                  <a href="#" className="text-blue-600 hover:underline">
+                  <a href="#" className="text-blue-600 hover:underline dark:text-blue-400">
                     Termos de Serviço
                   </a>{" "}
                   e{" "}
-                  <a href="#" className="text-blue-600 hover:underline">
+                  <a href="#" className="text-blue-600 hover:underline dark:text-blue-400">
                     Política de Privacidade
                   </a>
                 </p>
@@ -251,7 +261,7 @@ function LoginComponent() {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="text-center mt-8"
         >
-          <Link to="/" className="text-sm text-gray-500 hover:text-gray-700">
+          <Link to="/" className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
             ← Voltar para a página inicial
           </Link>
         </motion.div>

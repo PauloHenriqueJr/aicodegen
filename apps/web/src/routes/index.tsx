@@ -97,61 +97,62 @@ function HomeComponent() {
           </p>
         </motion.div>
 
-        {/* Preview Image */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="relative"
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-2xl blur-3xl transform scale-110 dark:from-blue-500/10 dark:to-purple-500/10"></div>
-          <img
-            src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=800&fit=crop"
-            alt="Dashboard Preview"
-            className="relative rounded-2xl shadow-2xl mx-auto max-w-4xl w-full"
-          />
-        </motion.div>
       </section>
 
       {/* Try Now - Central Chat */}
-      <section id="experimente" className="container mx-auto px-4 pb-8 -mt-6">
+      <section id="experimente" className="container mx-auto px-4 py-16">
         <motion.div
           initial={{ opacity: 0, scale: 0.98 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.5 }}
-          className="mx-auto max-w-4xl bg-white/80 dark:bg-gray-950/70 backdrop-blur-md rounded-2xl border border-gray-200 dark:border-gray-800 shadow-2xl"
+          className="mx-auto max-w-5xl bg-white/80 dark:bg-gray-950/70 backdrop-blur-md rounded-3xl border border-gray-200 dark:border-gray-800 shadow-2xl"
         >
-          <div className="p-6 md:p-8">
-            <div className="flex items-start space-x-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center shadow-md">
-                <Sparkles className="w-5 h-5 text-white" />
+          <div className="p-8 md:p-12">
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-r from-purple-500 to-blue-500 mb-6 shadow-lg">
+                <Sparkles className="w-8 h-8 text-white" />
               </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Experimente agora</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Descreva sua aplicação e veja como funciona. A criação só inicia após login.</p>
-              </div>
+              <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-4">Experimente agora</h3>
+              <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">Descreva sua aplicação e veja como funciona na prática.</p>
             </div>
 
-            <div className="flex items-end gap-3">
-              <div className="flex-1">
-                <div className="relative">
-                  <Input
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="Ex: Dashboard de e-commerce com gráficos"
-                    className="h-14 text-base pr-28"
-                  />
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                    <Button onClick={handleTryNow} disabled={!prompt.trim()} className="h-10 px-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-md">
-                      <Send className="w-4 h-4" />
-                    </Button>
-                  </div>
+            <div className="max-w-3xl mx-auto">
+              <div className="relative">
+                <Input
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  placeholder="Ex: Dashboard de e-commerce com gráficos"
+                  className="h-16 text-lg px-6 pr-32 rounded-xl border-2 border-gray-200 dark:border-gray-700 focus:border-blue-500 dark:focus:border-blue-400 shadow-lg"
+                />
+                <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                  <Button onClick={handleTryNow} disabled={!prompt.trim()} className="h-12 px-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg rounded-lg">
+                    <Send className="w-5 h-5 mr-2" />
+                    Testar
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="mt-6 text-center">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">💡 Dica: comece com um objetivo claro</p>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {[
+                    "App de tarefas com colaboração e tema escuro",
+                    "Dashboard de vendas com gráficos interativos",
+                    "Landing page para startup de tecnologia",
+                    "Sistema de gestão de usuários"
+                  ].map((example, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setPrompt(example)}
+                      className="px-4 py-2 text-sm bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg border border-gray-200 dark:border-gray-700 transition-all"
+                    >
+                      {example}
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
-
-            <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">Dica: comece com um objetivo claro. Ex.: "App de tarefas com colaboração e tema escuro"</p>
           </div>
         </motion.div>
       </section>

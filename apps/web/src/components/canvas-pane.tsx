@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "./ui/button";
 import { useAIGeneration, type ScreenFrame } from "../hooks/useAIGeneration";
+import { authenticatedFetch } from "../lib/auth-utils";
 import { 
   Monitor, 
   Tablet, 
@@ -46,11 +47,7 @@ export function CanvasPane({ isGenerating = false, deviceView = 'all', projectPr
     
     setLoadingRealScreens(true);
     try {
-      const response = await fetch(`http://localhost:3000/api/projects/${projectId}/screens`, {
-        headers: {
-          'Authorization': 'Bearer 76e12c09f37287ce35970ccdfc37a303d6425a0d28ff0c3dba219123a790b591580118d95626608f82de385bab02cc81dcdaff5a98fd8d01080b7c25bd29129f'
-        }
-      });
+      const response = await authenticatedFetch(`http://localhost:3000/api/projects/${projectId}/screens`);
       
       if (response.ok) {
         const data = await response.json();

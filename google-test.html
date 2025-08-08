@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Google OAuth</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+    <div id="status"></div>
+    <div id="g_id_onload"
+         data-client_id="207876045519-7trlg013advn4qqks8vlsp2nqbghap8d.apps.googleusercontent.com"
+         data-context="signin"
+         data-ux_mode="popup"
+         data-callback="handleCredentialResponse"
+         data-auto_prompt="false">
+    </div>
+
+    <div class="g_id_signin"
+         data-type="standard"
+         data-shape="rectangular"
+         data-theme="outline"
+         data-text="signin_with"
+         data-size="large"
+         data-logo_alignment="left">
+    </div>
+
+    <script>
+        function handleCredentialResponse(response) {
+            document.getElementById('status').innerHTML = `
+                <div style="color: green;">
+                    ✅ Google Sign-In funcionou!<br>
+                    Token recebido: ${response.credential.substring(0, 50)}...
+                </div>
+            `;
+            console.log("Encoded JWT ID token: " + response.credential);
+        }
+
+        function checkGoogleServices() {
+            const status = document.getElementById('status');
+            
+            if (window.google && window.google.accounts) {
+                status.innerHTML = `
+                    <div style="color: blue;">
+                        ✅ Google Identity Services carregado com sucesso!<br>
+                        ✅ Client ID: 207876045519-7trlg013advn4qqks8vlsp2nqbghap8d.apps.googleusercontent.com<br>
+                        ✅ Origem atual: ${window.location.origin}<br>
+                        🔄 Aguardando login...
+                    </div>
+                `;
+            } else {
+                status.innerHTML = `
+                    <div style="color: red;">
+                        ❌ Google Identity Services não carregou
+                    </div>
+                `;
+            }
+        }
+
+        // Verificar quando a página carregar
+        window.addEventListener('load', () => {
+            setTimeout(checkGoogleServices, 1000);
+        });
+
+        // Capturar erros da console
+        window.addEventListener('error', (e) => {
+            document.getElementById('status').innerHTML += `
+                <div style="color: red; margin-top: 10px;">
+                    ❌ Erro: ${e.message}
+                </div>
+            `;
+        });
+    </script>
+</body>
+</html>

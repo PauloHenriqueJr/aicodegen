@@ -51,7 +51,7 @@ function DashboardComponent() {
   const search = useSearch({ from: "/dashboard" });
   const router = useRouter();
   const { theme, setTheme } = useTheme();
-  const { setUser, setProjects, user, projects, isAuthenticated } = useApp();
+  const { setUser, setProjects, user, projects, isAuthenticated, isLoading, logout } = useApp();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>("preview");
@@ -59,16 +59,6 @@ function DashboardComponent() {
   const [generationTask, setGenerationTask] = useState<GenerationTask | null>(null);
   const [projectName, setProjectName] = useState("");
   const [showSettings, setShowSettings] = useState(false);
-  const [currentUser, setCurrentUser] = useState<User>({
-    id: "user-1",
-    name: "Usuário",
-    email: "usuario@exemplo.com",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
-    credits: 50,
-    maxCredits: 100,
-    plan: "free" as const,
-    createdAt: new Date()
-  });
   const [hasInitialized, setHasInitialized] = useState(false);
   const [currentProject, setCurrentProject] = useState<any>(null);
   const stepMessagesRef = useRef<Set<string>>(new Set());
@@ -830,15 +820,9 @@ export const useTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
-  const handleLogout = () => {
-    // Clear auth and user state
-    // TODO: Implement real logout
-    localStorage.removeItem('auth_token');
-    router.navigate({ to: "/login" });
-    setUser(null);
-    setProjects([]);
-    // Navigate to home page
-    router.navigate({ to: '/' });
+  const handleLogout = async () => {
+    await logout();
+    router.navigate({ to: "/" });
   };
 
   const handleProjectSelect = async (project: any) => {
@@ -897,6 +881,24 @@ export const useTheme = () => {
     }
   };
 
+  // Show loading screen while initializing
+  if (isLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-slate-50/60 via-white/40 to-indigo-50/60 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-300">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect to login if not authenticated
+  if (!isAuthenticated || !user) {
+    router.navigate({ to: "/login" });
+    return null;
+  }
+
   // Always show sidebar in this new flow
   return (
     <div className="h-screen flex bg-gradient-to-br from-slate-50/60 via-white/40 to-indigo-50/60 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950">
@@ -904,7 +906,8 @@ export const useTheme = () => {
       <AnimatePresence>
         {showSidebar && (
           <Sidebar
-            user={currentUser}
+            user={user}
+            projects={projects}
             generationTask={generationTask}
             onClose={() => setShowSidebar(false)}
             messages={messages}
@@ -1206,8 +1209,8 @@ export const useTheme = () => {
       <SettingsDialog
         open={showSettings}
         onClose={() => setShowSettings(false)}
-        user={currentUser}
-        onUserUpdate={setCurrentUser}
+        user={user}
+        onUserUpdate={setUser}
       />
     </div>
   );

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "./ui/button";
+import { authenticatedFetch } from "../lib/auth-utils";
 import { 
   Monitor, 
   Tablet, 
@@ -51,12 +52,8 @@ export function PreviewPane({ device = 'desktop', projectId, refreshSignal }: Pr
     
     try {
       if (projectId) {
-        // Load real generated code from backend
-        const response = await fetch(`http://localhost:3000/api/projects/${projectId}/preview`, {
-          headers: {
-            'Authorization': 'Bearer 76e12c09f37287ce35970ccdfc37a303d6425a0d28ff0c3dba219123a790b591580118d95626608f82de385bab02cc81dcdaff5a98fd8d01080b7c25bd29129f'
-          }
-        });
+        // Load real generated code from backend using authenticated fetch
+        const response = await authenticatedFetch(`http://localhost:3000/api/projects/${projectId}/preview`);
         
         if (response.ok) {
           const data = await response.json();
@@ -70,7 +67,7 @@ export function PreviewPane({ device = 'desktop', projectId, refreshSignal }: Pr
             setGeneratedCode(mockTodoApp);
           }
         } else {
-          throw new Error('Failed to load preview');
+          throw new Error(`Failed to load preview: ${response.status}`);
         }
       } else {
         // No project, generate a simple todo app

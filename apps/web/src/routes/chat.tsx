@@ -30,7 +30,7 @@ function ChatComponent() {
   const [isGenerating, setIsGenerating] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-  const { isAuthenticated, projects } = useApp();
+  const { isAuthenticated, isLoading, projects, user } = useApp();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -132,6 +132,18 @@ function ChatComponent() {
     }
   };
 
+  // Show loading screen while initializing
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-950 dark:via-gray-950 dark:to-gray-900 flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-300">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-950 dark:via-gray-950 dark:to-gray-900 flex items-center justify-center p-4">
       <div className="w-full max-w-4xl mx-auto">
@@ -147,7 +159,7 @@ function ChatComponent() {
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
             AICodeGen
           </h1>
-          <p className="text-gray-600">Descreva sua aplicação em linguagem natural</p>
+          <p className="text-gray-600 dark:text-gray-400">Descreva sua aplicação em linguagem natural</p>
         </motion.div>
 
         {/* Chat Container */}
@@ -217,7 +229,7 @@ function ChatComponent() {
                           <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
                           <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                         </div>
-                        <span className="text-gray-700">Iniciando geração...</span>
+                        <span className="text-gray-700 dark:text-gray-300">Iniciando geração...</span>
                       </div>
                     </div>
                   </div>
@@ -316,11 +328,11 @@ function ChatComponent() {
           >
             <div className="max-w-4xl mx-auto">
               <div className="flex items-center justify-between mb-3 px-1">
-                <h3 className="text-sm font-semibold text-gray-700">
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                   Seus projetos
                 </h3>
                 <button
-                  className="text-xs text-blue-600 hover:text-blue-700"
+                  className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                   onClick={() => router.navigate({ to: "/dashboard" })}
                 >
                   Abrir workspace
@@ -336,14 +348,14 @@ function ChatComponent() {
                         search: { project: p.name },
                       })
                     }
-                    className="text-left p-4 rounded-xl border border-gray-200 bg-white/80 hover:bg-white shadow-sm hover:shadow transition-all"
+                    className="text-left p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 hover:bg-white dark:hover:bg-gray-800 shadow-sm hover:shadow transition-all"
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="text-sm font-semibold text-gray-900">
+                        <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                           {p.name}
                         </div>
-                        <div className="text-xs text-gray-500 mt-1 line-clamp-1">
+                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-1">
                           {p.description}
                         </div>
                       </div>
@@ -377,7 +389,7 @@ function ChatComponent() {
           transition={{ delay: 0.3 }}
           className="text-center mt-8"
         >
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Comece gratuitamente • Gere código React + designs Figma
           </p>
         </motion.div>

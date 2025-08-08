@@ -16,11 +16,11 @@ import {
 import type { User as UserType, GenerationTask, ChatMessage } from "../types";
 import { ProgressTracker } from "./progress-tracker";
 import { RealProgressTracker } from "./real-progress-tracker";
-import { mockProjects } from "../lib/mock-data";
 import { useState, useRef, useEffect } from "react";
 
 interface SidebarProps {
   user: UserType;
+  projects?: any[];
   generationTask?: GenerationTask | null;
   onClose: () => void;
   messages: ChatMessage[];
@@ -36,6 +36,7 @@ interface SidebarProps {
 
 export function Sidebar({
   user,
+  projects = [],
   generationTask,
   onClose,
   messages,
@@ -75,7 +76,7 @@ export function Sidebar({
     }
   };
 
-  const hasRecentProjects = mockProjects.length > 0;
+  const hasRecentProjects = projects.length > 0;
 
   return (
     <motion.div
@@ -205,7 +206,7 @@ export function Sidebar({
           </h4>
           
           <div className="space-y-2">
-            {mockProjects.slice(0, 2).map((project) => (
+            {projects.slice(0, 2).map((project) => (
               <motion.div
                 key={project.id}
                 whileHover={{ scale: 1.01 }}
