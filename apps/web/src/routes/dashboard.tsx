@@ -32,7 +32,7 @@ import { PreviewPane } from "../components/preview-pane";
 import { CanvasPane } from "../components/canvas-pane";
 import { useTheme } from "../components/theme-provider";
 import { SettingsDialog } from "../components/settings-dialog";
-import { useAIGeneration } from "../hooks/useAIGeneration";
+import { useRealAIGeneration } from "../hooks/useRealAIGeneration";
 import { useApp, mockAuth } from "../lib/app-context";
 
 interface DashboardSearch {
@@ -79,8 +79,8 @@ function DashboardComponent() {
     startGeneration,
     stopGeneration,
     resetGeneration
-  } = useAIGeneration({
-    projectPrompt: projectName || search.project,
+  } = useRealAIGeneration({
+    projectId: search.project || "temp-project-id", // TODO: Get real project ID
     onScreenGenerated: (screen) => {
       console.log('Screen generated:', screen.name);
       // Adicionar mensagem no chat quando uma tela for gerada
