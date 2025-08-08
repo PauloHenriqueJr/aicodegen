@@ -33,14 +33,12 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Install dependencies
-        working-directory: apps/web
         run: npm install
 
       - name: Build
-        working-directory: apps/web
         run: |
           npm run build
-          echo "" > dist/.nojekyll
+          echo "" > apps/web/dist/.nojekyll
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
