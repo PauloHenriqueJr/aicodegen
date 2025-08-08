@@ -1,6 +1,7 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
+  "installCommand": "cd ../.. && npm ci",
+  "buildCommand": "cd ../.. && npm run build --filter=server",
   "builds": [
     {
       "src": "dist/index.js",
