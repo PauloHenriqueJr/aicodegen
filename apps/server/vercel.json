@@ -1,17 +1,16 @@
 {
   "version": 2,
-  "installCommand": "cd ../.. && npm ci",
-  "buildCommand": "cd ../.. && npm run build --filter=server",
+  "buildCommand": "bash build.sh",
   "builds": [
     {
-      "src": "dist/index.js",
+      "src": "index.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "dist/index.js"
+      "dest": "index.js"
     }
   ]
 }
