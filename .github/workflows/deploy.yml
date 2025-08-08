@@ -17,7 +17,8 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     env:
-      VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
+      VITE_GOOGLE_CLIENT_ID: "207876045519-7trlg013advn4qqks8vlsp2nqbghap8d.apps.googleusercontent.com"
+      VITE_API_URL: "https://aicodegen-server-virid.vercel.app"
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
