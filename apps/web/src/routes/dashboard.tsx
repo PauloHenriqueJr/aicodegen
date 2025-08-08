@@ -24,7 +24,7 @@ import {
   Sun
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import type { ChatMessage, TabType } from "../types";
+import type { ChatMessage, TabType, GenerationTask, User } from "../types";
 import { Sidebar } from "../components/sidebar";
 import { CodeEditor } from "../components/code-editor";
 import { PreviewPane } from "../components/preview-pane";
@@ -59,13 +59,15 @@ function DashboardComponent() {
   const [generationTask, setGenerationTask] = useState<GenerationTask | null>(null);
   const [projectName, setProjectName] = useState("");
   const [showSettings, setShowSettings] = useState(false);
-  const [currentUser, setCurrentUser] = useState({
+  const [currentUser, setCurrentUser] = useState<User>({
     id: "user-1",
     name: "Usuário",
     email: "usuario@exemplo.com",
     avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
     credits: 50,
-    plan: "Gratuito" as const
+    maxCredits: 100,
+    plan: "free" as const,
+    createdAt: new Date()
   });
   const [hasInitialized, setHasInitialized] = useState(false);
   const [currentProject, setCurrentProject] = useState<any>(null);
