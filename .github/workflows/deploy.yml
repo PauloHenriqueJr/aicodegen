@@ -57,7 +57,7 @@ jobs:
         # Criar arquivo .env.production com as variáveis necessárias
         cd apps/web
         echo "VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID" > .env.production
-        echo "VITE_API_URL=https://aicodegen-backend-paulohenriquejr.vercel.app" >> .env.production
+        echo "VITE_API_URL=https://aicodegen-server-virid.vercel.app" >> .env.production
         echo "📝 Conteúdo do .env.production:"
         cat .env.production
         

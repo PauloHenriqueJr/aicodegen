@@ -1,12 +1,13 @@
-name: 🚀 Deploy Backend to Vercel
+name: 🚀 Deploy Backend to Vercel - DISABLED
 
 on:
-  push:
-    branches: [ main ]
-    paths:
-      - 'apps/server/**'
-      - 'package.json'
-      - 'turbo.json'
+  # Desabilitado - Vercel faz deploy automático via Git integration
+  # push:
+  #   branches: [ main ]
+  #   paths:
+  #     - 'apps/server/**'
+  #     - 'package.json'
+  #     - 'turbo.json'
   workflow_dispatch:
 
 jobs:

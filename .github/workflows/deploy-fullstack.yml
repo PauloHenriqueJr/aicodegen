@@ -1,8 +1,9 @@
-name: 🚀 Deploy Full Stack (Frontend + Backend)
+name: 🚀 Deploy Full Stack (Frontend + Backend) - DISABLED
 
 on:
-  push:
-    branches: [ main ]
+  # Desabilitado temporariamente - Vercel faz deploy automático
+  # push:
+  #   branches: [ main ]
   workflow_dispatch:
 
 permissions:
