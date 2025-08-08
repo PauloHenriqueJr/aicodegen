@@ -58,7 +58,7 @@ function LoginComponent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-950 dark:via-gray-950 dark:to-gray-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <motion.div 
@@ -80,12 +80,12 @@ function LoginComponent() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
         >
-          <Card className="p-8 shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+          <Card className="p-8 shadow-xl bg-white/80 dark:bg-gray-950/70 backdrop-blur-sm border border-gray-200 dark:border-gray-800">
             <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                 {isLogin ? "Entre na sua conta" : "Crie sua conta"}
               </h2>
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-gray-300">
                 {isLogin 
                   ? "Acesse sua plataforma de geração de aplicações"
                   : "Comece a criar aplicações incríveis hoje"
@@ -97,7 +97,7 @@ function LoginComponent() {
             <div className="space-y-3 mb-6">
               <Button
                 variant="outline"
-                className="w-full h-12 bg-white hover:bg-gray-50 border border-gray-200"
+                className="w-full h-12 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200"
                 onClick={() => handleSocialLogin('google')}
                 disabled={isLoading}
               >
@@ -112,7 +112,7 @@ function LoginComponent() {
 
               <Button
                 variant="outline"
-                className="w-full h-12 bg-white hover:bg-gray-50 border border-gray-200"
+                className="w-full h-12 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200"
                 onClick={() => handleSocialLogin('github')}
                 disabled={isLoading}
               >

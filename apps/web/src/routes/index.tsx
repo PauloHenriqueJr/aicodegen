@@ -1,35 +1,56 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
-import { Code, Figma, Zap, Sparkles, Check, ArrowRight, Star } from "lucide-react";
+import { Code, Figma, Zap, Sparkles, Check, ArrowRight, Send } from "lucide-react";
 import { motion } from "framer-motion";
-import { useEffect } from "react";
+import { useState } from "react";
+import { Input } from "../components/ui/input";
+import { useApp } from "../lib/app-context";
+import { ModeToggle } from "../components/mode-toggle";
 
 export const Route = createFileRoute("/")({
   component: HomeComponent,
 });
 
 function HomeComponent() {
+  const { isAuthenticated } = useApp();
+  const router = useRouter();
+  const [prompt, setPrompt] = useState("");
+
+  const handleTryNow = () => {
+    const trimmed = prompt.trim();
+    if (!trimmed) return;
+
+    if (!isAuthenticated) {
+      sessionStorage.setItem("pendingPrompt", trimmed);
+      router.navigate({ to: "/login" });
+      return;
+    }
+
+    router.navigate({ to: "/dashboard", search: { project: trimmed } });
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-950 dark:via-gray-950 dark:to-gray-900">
       {/* Header */}
       <header className="container mx-auto px-4 py-6 flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shadow-md shadow-blue-500/20">
             <Sparkles className="w-5 h-5 text-white" />
           </div>
           <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             AICodeGen
           </span>
         </div>
-        <nav className="hidden md:flex items-center space-x-6">
-          <a href="#recursos" className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">Recursos</a>
-          <a href="#precos" className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">Preços</a>
-          <a href="#documentacao" className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">Documentação</a>
-          <a href="#suporte" className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">Suporte</a>
+        <nav className="hidden md:flex items-center space-x-4">
+          <a href="#recursos" className="text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">Recursos</a>
+          <a href="#precos" className="text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">Preços</a>
+          <a href="#documentacao" className="text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">Documentação</a>
+          <a href="#suporte" className="text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">Suporte</a>
           <Link to="/login">
             <Button variant="outline" size="sm">Login</Button>
           </Link>
+          <ModeToggle />
         </nav>
       </header>
 
@@ -40,7 +61,7 @@ function HomeComponent() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium mb-6">
+          <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 rounded-full text-sm font-medium mb-6 shadow-sm">
             <Sparkles className="w-4 h-4 mr-2" />
             Potencializado por IA
           </div>
@@ -59,17 +80,19 @@ function HomeComponent() {
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
             <Link to="/login">
-              <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8">
+              <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 shadow-lg shadow-blue-600/20">
                 Começar Gratuitamente
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </Link>
-            <Button variant="outline" size="lg" className="px-8">
-              Ver Demo
-            </Button>
+            <a href="#experimente" className="px-8">
+              <Button variant="outline" size="lg" className="px-8">
+                Ver Demo
+              </Button>
+            </a>
           </div>
           
-          <p className="text-sm text-gray-500 mb-8">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">
             Comece grátis com 50 créditos • Sem cartão de crédito necessário
           </p>
         </motion.div>
@@ -81,7 +104,7 @@ function HomeComponent() {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="relative"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-2xl blur-3xl transform scale-110"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-2xl blur-3xl transform scale-110 dark:from-blue-500/10 dark:to-purple-500/10"></div>
           <img
             src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=800&fit=crop"
             alt="Dashboard Preview"
@@ -90,16 +113,59 @@ function HomeComponent() {
         </motion.div>
       </section>
 
+      {/* Try Now - Central Chat */}
+      <section id="experimente" className="container mx-auto px-4 pb-8 -mt-6">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.98 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.5 }}
+          className="mx-auto max-w-4xl bg-white/80 dark:bg-gray-950/70 backdrop-blur-md rounded-2xl border border-gray-200 dark:border-gray-800 shadow-2xl"
+        >
+          <div className="p-6 md:p-8">
+            <div className="flex items-start space-x-3 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center shadow-md">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Experimente agora</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Descreva sua aplicação e veja como funciona. A criação só inicia após login.</p>
+              </div>
+            </div>
+
+            <div className="flex items-end gap-3">
+              <div className="flex-1">
+                <div className="relative">
+                  <Input
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    placeholder="Ex: Dashboard de e-commerce com gráficos"
+                    className="h-14 text-base pr-28"
+                  />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <Button onClick={handleTryNow} disabled={!prompt.trim()} className="h-10 px-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-md">
+                      <Send className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">Dica: comece com um objetivo claro. Ex.: "App de tarefas com colaboração e tema escuro"</p>
+          </div>
+        </motion.div>
+      </section>
+
       {/* Features Section */}
       <section id="recursos" className="container mx-auto px-4 py-16">
         <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
             Tudo que você precisa para{" "}
             <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               criar aplicações incríveis
             </span>
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
             Nossa plataforma combina as melhores ferramentas de desenvolvimento para entregar resultados profissionais em tempo recorde.
           </p>
         </div>
@@ -130,22 +196,23 @@ function HomeComponent() {
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
             >
-              <Card className="p-6 h-full hover:shadow-lg transition-shadow">
-                <div className="w-12 h-12 bg-gradient-to-r from-blue-100 to-purple-100 rounded-lg flex items-center justify-center mb-4">
+              <Card className="p-6 h-full hover:shadow-2xl shadow-md transition-all duration-300 hover:-translate-y-1 bg-card/90 backdrop-blur border border-border">
+                <div className="w-12 h-12 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-gray-800 dark:to-gray-700 rounded-lg flex items-center justify-center mb-4 shadow-sm">
                   <feature.icon className="w-6 h-6 text-blue-600" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">{feature.title}</h3>
-                <p className="text-gray-600">{feature.description}</p>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{feature.title}</h3>
+                <p className="text-gray-600 dark:text-gray-300">{feature.description}</p>
               </Card>
             </motion.div>
           ))}
         </div>
 
         {/* Stats */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 mt-16 text-white text-center">
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 mt-16 text-white text-center shadow-xl">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div>
               <div className="text-3xl font-bold mb-1">10K+</div>
@@ -170,13 +237,13 @@ function HomeComponent() {
       {/* Pricing Section */}
       <section id="precos" className="container mx-auto px-4 py-16">
         <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
             Escolha o plano ideal{" "}
             <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               para suas necessidades
             </span>
           </h2>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-gray-600 dark:text-gray-300">
             Comece gratuitamente e escale conforme suas necessidades. Todos os planos incluem recursos premium.
           </p>
         </div>
@@ -232,32 +299,33 @@ function HomeComponent() {
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
             >
-              <Card className={`p-6 h-full ${plan.popular ? 'ring-2 ring-blue-600 relative' : ''}`}>
+              <Card className={`${plan.popular ? 'ring-2 ring-blue-600 relative' : ''} p-6 h-full hover:shadow-2xl transition-shadow bg-card/90 backdrop-blur border border-border`}>
                 {plan.popular && (
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-1 rounded-full text-sm font-medium">
+                    <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-1 rounded-full text-sm font-medium shadow">
                       Mais Popular
                     </div>
                   </div>
                 )}
                 
                 <div className="text-center mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{plan.name}</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{plan.name}</h3>
                   <div className="mb-2">
-                    <span className="text-3xl font-bold text-gray-900">{plan.price}</span>
-                    <span className="text-gray-600">{plan.period}</span>
+                    <span className="text-3xl font-bold text-gray-900 dark:text-white">{plan.price}</span>
+                    <span className="text-gray-600 dark:text-gray-300">{plan.period}</span>
                   </div>
-                  <p className="text-gray-600 text-sm">{plan.description}</p>
+                  <p className="text-gray-600 dark:text-gray-300 text-sm">{plan.description}</p>
                 </div>
 
                 <ul className="space-y-3 mb-6">
                   {plan.features.map((feature, idx) => (
                     <li key={idx} className="flex items-center">
-                      <Check className="w-4 h-4 text-green-600 mr-3" />
-                      <span className="text-sm text-gray-600">{feature}</span>
+                      <Check className="w-4 h-4 text-green-500 mr-3" />
+                      <span className="text-sm text-gray-600 dark:text-gray-300">{feature}</span>
                     </li>
                   ))}
                 </ul>
@@ -266,7 +334,7 @@ function HomeComponent() {
                   <Button 
                     className={`w-full ${plan.popular 
                       ? 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white' 
-                      : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                      : 'bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'
                     }`}
                   >
                     {plan.cta}
@@ -278,8 +346,8 @@ function HomeComponent() {
         </div>
 
         <div className="text-center mt-12">
-          <p className="text-sm text-gray-500 mb-4">Dúvidas sobre os planos?</p>
-          <Button variant="link" className="text-blue-600">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Dúvidas sobre os planos?</p>
+          <Button variant="link" className="text-blue-600 dark:text-blue-400">
             Ver FAQ Completo
           </Button>
         </div>
@@ -304,8 +372,8 @@ function HomeComponent() {
             <div>
               <h4 className="font-semibold mb-4">Produto</h4>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-white">Recursos</a></li>
-                <li><a href="#" className="hover:text-white">Preços</a></li>
+                <li><a href="#recursos" className="hover:text-white">Recursos</a></li>
+                <li><a href="#precos" className="hover:text-white">Preços</a></li>
                 <li><a href="#" className="hover:text-white">Changelog</a></li>
                 <li><a href="#" className="hover:text-white">Roadmap</a></li>
               </ul>
@@ -314,7 +382,7 @@ function HomeComponent() {
             <div>
               <h4 className="font-semibold mb-4">Recursos</h4>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-white">Documentação</a></li>
+                <li><a href="#documentacao" className="hover:text-white">Documentação</a></li>
                 <li><a href="#" className="hover:text-white">API Reference</a></li>
                 <li><a href="#" className="hover:text-white">Exemplos</a></li>
                 <li><a href="#" className="hover:text-white">Blog</a></li>
@@ -324,7 +392,7 @@ function HomeComponent() {
             <div>
               <h4 className="font-semibold mb-4">Suporte</h4>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-white">Central de Ajuda</a></li>
+                <li><a href="#suporte" className="hover:text-white">Central de Ajuda</a></li>
                 <li><a href="#" className="hover:text-white">Contato</a></li>
                 <li><a href="#" className="hover:text-white">Status</a></li>
                 <li><a href="#" className="hover:text-white">Comunidade</a></li>
