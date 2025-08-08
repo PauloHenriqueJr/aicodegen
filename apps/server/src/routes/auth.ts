@@ -121,6 +121,11 @@ authRouter.post(
 
     try {
       console.log('Verificando token do Google...');
+      console.log('Environment check:', {
+        hasGoogleClientId: !!process.env.GOOGLE_CLIENT_ID,
+        googleClientIdLength: process.env.GOOGLE_CLIENT_ID?.length || 0,
+        nodeEnv: process.env.NODE_ENV
+      });
       
       // First decode without verification to check the token structure
       const base64Url = credential.split('.')[1];
@@ -149,8 +154,17 @@ authRouter.post(
       }
 
       // Check audience
+      console.log('Verificando audience:', {
+        tokenAud: decodedPayload.aud,
+        envClientId: process.env.GOOGLE_CLIENT_ID,
+        match: decodedPayload.aud === process.env.GOOGLE_CLIENT_ID
+      });
+      
       if (decodedPayload.aud !== process.env.GOOGLE_CLIENT_ID) {
-        console.error('Audience incorreta:', decodedPayload.aud);
+        console.error('Audience incorreta:', {
+          expected: process.env.GOOGLE_CLIENT_ID,
+          received: decodedPayload.aud
+        });
         return ApiResponseHelper.unauthorized(c, 'Token para cliente incorreto');
       }
 
