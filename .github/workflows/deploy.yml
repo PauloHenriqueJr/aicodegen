@@ -44,6 +44,7 @@ jobs:
         cp public/404.html dist/
       env:
         NODE_ENV: production
+        VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
     
     - name: 📄 Setup Pages
       uses: actions/configure-pages@v4
