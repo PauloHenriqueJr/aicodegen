@@ -9,6 +9,7 @@ const router = createRouter({
   defaultPreload: "intent",
   defaultPendingComponent: () => <Loader />,
   context: {},
+  basepath: import.meta.env.PROD ? '/aicodegen' : '/',
   });
 
 declare module "@tanstack/react-router" {
