@@ -40,7 +40,7 @@ jobs:
         working-directory: apps/web
         run: |
           npm run build
-          touch dist/.nojekyll
+          echo "" > dist/.nojekyll
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
