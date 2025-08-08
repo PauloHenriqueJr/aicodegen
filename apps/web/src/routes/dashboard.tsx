@@ -51,7 +51,7 @@ function DashboardComponent() {
   const search = useSearch({ from: "/dashboard" });
   const router = useRouter();
   const { theme, setTheme } = useTheme();
-  const { setUser, setProjects } = useApp();
+  const { setUser, setProjects, user, projects, isAuthenticated } = useApp();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>("preview");
@@ -207,6 +207,41 @@ ${data.data.steps.map((step: any, i: number) =>
 
   const handleSendMessage = async (message: string) => {
     if (!message.trim() || isGenerating || aiIsGenerating) return;
+
+    // Login gate: require auth to create
+    if (!isAuthenticated) {
+      sessionStorage.setItem('pendingPrompt', message);
+      router.navigate({ to: "/login" });
+      return;
+    }
+
+    // Free plan limits: credits and project count
+    if (user?.plan === 'free') {
+      if (projects && projects.length >= 3) {
+        const limitMsg: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: `Seu plano gratuito permite até 3 projetos. Exclua um projeto ou faça upgrade para continuar.`,
+          timestamp: new Date(),
+        };
+        setMessages(prev => [...prev, limitMsg]);
+        return;
+      }
+      if ((user?.credits ?? 0) <= 0) {
+        const noCreditsMsg: ChatMessage = {
+          id: (Date.now() + 2).toString(),
+          role: "assistant",
+          content: `Seus créditos gratuitos acabaram. Faça upgrade do plano para continuar gerando projetos.`,
+          timestamp: new Date(),
+        };
+        setMessages(prev => [...prev, noCreditsMsg]);
+        return;
+      }
+      // Optional: deduct a small number of credits on start
+      if (user) {
+        setUser({ ...user, credits: Math.max(0, user.credits - 5) });
+      }
+    }
 
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
