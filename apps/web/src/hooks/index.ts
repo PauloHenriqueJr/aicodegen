@@ -1,1 +1,1 @@
-export * from './useAIGeneration';
+export * from './useRealAIGeneration';

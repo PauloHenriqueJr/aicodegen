@@ -16,7 +16,6 @@ import {
   ExternalLink
 } from "lucide-react";
 import { Editor } from "@monaco-editor/react";
-import { mockProjects } from "../lib/mock-data";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 
@@ -50,7 +49,7 @@ const defaultFileStructure: FileNode[] = [
             name: 'Dashboard.tsx',
             type: 'file',
             path: '/src/components/Dashboard.tsx',
-            content: mockProjects[0].files[1].content,
+            content: '// Component code will be loaded from API',
             language: 'typescript'
           },
           {
@@ -161,7 +160,7 @@ export default ProductList;`,
         name: 'App.tsx',
         type: 'file',
         path: '/src/App.tsx',
-        content: mockProjects[0].files[0].content,
+        content: '// App component code will be loaded from API',
         language: 'typescript'
       },
       {
