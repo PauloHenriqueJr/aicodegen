@@ -133,7 +133,7 @@ function ChatComponent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-950 dark:via-gray-950 dark:to-gray-900 flex items-center justify-center p-4">
       <div className="w-full max-w-4xl mx-auto">
         {/* Logo */}
         <motion.div 
@@ -154,7 +154,7 @@ function ChatComponent() {
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-200 overflow-hidden max-h-[70vh] flex flex-col"
+          className="bg-white/80 dark:bg-gray-950/70 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-800 overflow-hidden max-h-[70vh] flex flex-col"
         >
           {/* Messages Area */}
           <div className="flex-1 overflow-y-auto p-6 space-y-6 min-h-[400px] max-h-[500px]">
@@ -185,7 +185,7 @@ function ChatComponent() {
                         <div className={`inline-block px-6 py-4 rounded-2xl ${
                           message.role === 'user'
                             ? 'bg-blue-600 text-white'
-                            : 'bg-gray-100 text-gray-900'
+                              : 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
                         }`}>
                           <p className="leading-relaxed">{message.content}</p>
                         </div>
@@ -210,7 +210,7 @@ function ChatComponent() {
                     <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center">
                       <Sparkles className="w-5 h-5 text-white" />
                     </div>
-                    <div className="bg-gray-100 rounded-2xl px-6 py-4">
+                    <div className="bg-gray-100 dark:bg-gray-800 rounded-2xl px-6 py-4">
                       <div className="flex items-center space-x-3">
                         <div className="flex space-x-1">
                           <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></div>
@@ -245,7 +245,7 @@ function ChatComponent() {
                   <button
                     key={index}
                     onClick={() => setInputValue(example)}
-                    className="p-3 text-left bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 hover:border-blue-300 transition-all text-sm text-gray-700 hover:text-blue-700"
+                    className="p-3 text-left bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 transition-all text-sm text-gray-700 dark:text-gray-200 hover:text-blue-700"
                     disabled={isGenerating}
                   >
                     {example}
@@ -256,7 +256,7 @@ function ChatComponent() {
           )}
 
           {/* Input Area */}
-          <div className="p-6 bg-gray-50 border-t border-gray-200">
+          <div className="p-6 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
             <div className="flex items-end space-x-4">
               <div className="flex-1">
                 <div className="relative">
